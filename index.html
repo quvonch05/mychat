@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#090B10" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Suhbat" />
+  <link rel="manifest" href="./manifest.json" />
+  <title>Suhbat — Real-Time Messenger</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-base: #090b10;
+      --bg-elevated: rgba(18, 22, 34, 0.78);
+      --bg-card: rgba(24, 29, 45, 0.85);
+      --bg-hover: rgba(255, 255, 255, 0.06);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.14);
+      --text-primary: #f3f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent: #6366f1;
+      --accent-2: #8b5cf6;
+      --accent-glow: rgba(99, 102, 241, 0.35);
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --bubble-me: linear-gradient(135deg, #6366f1, #7c3aed);
+      --bubble-other: rgba(30, 36, 54, 0.92);
+      --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.45);
+      --radius-sm: 10px;
+      --radius-md: 16px;
+      --radius-lg: 22px;
+      --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    [data-theme="light"] {
+      --bg-base: #f1f5f9;
+      --bg-elevated: rgba(255, 255, 255, 0.86);
+      --bg-card: rgba(255, 255, 255, 0.96);
+      --bg-hover: rgba(15, 23, 42, 0.05);
+      --border: rgba(15, 23, 42, 0.08);
+      --border-strong: rgba(15, 23, 42, 0.14);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --bubble-other: #ffffff;
+      --shadow-lg: 0 20px 45px rgba(15, 23, 42, 0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      height: 100%; width: 100%; overflow: hidden;
+      font-family: var(--font);
+      background: var(--bg-base);
+      color: var(--text-primary);
+      background-image:
+        radial-gradient(circle at 12% 18%, rgba(99, 102, 241, 0.14), transparent 36%),
+        radial-gradient(circle at 88% 82%, rgba(139, 92, 246, 0.12), transparent 38%);
+    }
+
+    button, input, textarea, select { font-family: inherit; color: inherit; outline: none; }
+    button { cursor: pointer; border: none; background: transparent; }
+    .hidden { display: none !important; }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+
+    /* Toast */
+    #toast-container {
+      position: fixed; top: 18px; right: 18px; z-index: 9999;
+      display: flex; flex-direction: column; gap: 10px; max-width: 340px;
+    }
+    .toast {
+      background: var(--bg-card); backdrop-filter: blur(18px);
+      border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+      padding: 12px 16px; font-size: 13.5px; line-height: 1.45;
+      box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 10px;
+      animation: slideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .toast.success { border-left: 3px solid var(--emerald); }
+    .toast.error { border-left: 3px solid var(--rose); }
+    .toast.info { border-left: 3px solid var(--accent); }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-10px) scale(0.96); } to { opacity: 1; transform: none; } }
+
+    /* Global Broadcast Banner */
+    #broadcast-banner {
+      background: linear-gradient(90deg, rgba(99,102,241,0.92), rgba(139,92,246,0.92));
+      color: #fff; padding: 9px 16px; font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      z-index: 60; position: relative;
+    }
+    #broadcast-banner button { color: rgba(255,255,255,0.85); font-size: 16px; margin-left: auto; }
+
+    /* Auth Overlay (Telegram Bot OTP) */
+    #auth-screen {
+      position: fixed; inset: 0; z-index: 500;
+      display: flex; align-items: center; justify-content: center; padding: 20px;
+      background: rgba(6, 8, 14, 0.84); backdrop-filter: blur(22px);
+    }
+    .auth-card {
+      width: 100%; max-width: 430px; background: var(--bg-card);
+      border: 1px solid var(--border-strong); border-radius: 26px;
+      padding: 30px; box-shadow: var(--shadow-lg);
+    }
+    .auth-logo {
+      width: 54px; height: 54px; border-radius: 16px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: grid; place-items: center; font-size: 24px; font-weight: 800; color: #fff;
+      box-shadow: 0 12px 28px var(--accent-glow); margin-bottom: 16px;
+    }
+    .auth-card h1 { font-size: 23px; font-weight: 800; margin-bottom: 6px; }
+    .auth-card p.sub { color: var(--text-secondary); font-size: 13.5px; margin-bottom: 22px; line-height: 1.5; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+    .input {
+      width: 100%; padding: 12px 14px; border-radius: 13px;
+      background: var(--bg-hover); border: 1px solid var(--border);
+      font-size: 14px; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+    .btn-primary {
+      width: 100%; padding: 13px 16px; border-radius: 13px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff; font-weight: 700; font-size: 14.5px;
+      box-shadow: 0 10px 24px var(--accent-glow);
+      transition: transform 0.15s, opacity 0.2s;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-primary:hover { opacity: 0.95; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-secondary {
+      padding: 10px 14px; border-radius: 12px;
+      background: var(--bg-hover); border: 1px solid var(--border);
+      font-weight: 600; font-size: 13px; transition: background 0.2s;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-secondary:hover { background: var(--border); }
+    .btn-danger { background: rgba(244, 63, 94, 0.16); color: var(--rose); border: 1px solid rgba(244, 63, 94, 0.3); }
+    .tg-helper {
+      margin-top: 12px; padding: 11px 13px; border-radius: 12px;
+      background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2);
+      font-size: 12.5px; color: var(--text-secondary); line-height: 1.5;
+    }
+    .tg-helper a { color: #38bdf8; font-weight: 700; text-decoration: none; }
+
+    /* Main Workspace Layout */
+    #app-shell {
+      display: flex; flex-direction: column; height: 100%; width: 100%;
+    }
+    .workspace {
+      flex: 1; display: grid;
+      grid-template-columns: 70px 310px 1fr 290px;
+      min-height: 0; position: relative;
+    }
+    .workspace.right-closed { grid-template-columns: 70px 310px 1fr 0px; }
+
+    /* 1. Left Rail */
+    .rail {
+      background: var(--bg-elevated); backdrop-filter: blur(20px);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; align-items: center;
+      padding: 16px 0; gap: 12px; z-index: 20;
+    }
+    .brand-btn {
+      width: 44px; height: 44px; border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff; font-weight: 800; font-size: 19px;
+      display: grid; place-items: center; box-shadow: 0 8px 20px var(--accent-glow);
+      user-select: none; margin-bottom: 8px;
+    }
+    .rail-btn {
+      width: 44px; height: 44px; border-radius: 14px;
+      display: grid; place-items: center; font-size: 19px;
+      color: var(--text-secondary); transition: all 0.2s; position: relative;
+    }
+    .rail-btn:hover, .rail-btn.active {
+      background: var(--bg-hover); color: var(--text-primary);
+    }
+    .rail-btn.active::before {
+      content: ''; position: absolute; left: -13px; width: 4px; height: 22px;
+      border-radius: 0 4px 4px 0; background: var(--accent);
+    }
+    .rail-spacer { flex: 1; }
+    .avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: grid; place-items: center; font-weight: 700; font-size: 15px; color: #fff;
+      flex-shrink: 0; position: relative; user-select: none;
+    }
+    .avatar .dot {
+      position: absolute; bottom: 0; right: 0; width: 11px; height: 11px;
+      border-radius: 50%; background: var(--emerald); border: 2px solid var(--bg-base);
+    }
+
+    /* 2. Sidebar (Rooms + Stories) */
+    .sidebar {
+      background: var(--bg-elevated); backdrop-filter: blur(20px);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; min-height: 0;
+    }
+    .sidebar-header {
+      padding: 16px; border-bottom: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .sidebar-top { display: flex; align-items: center; justify-content: space-between; }
+    .sidebar-top h2 { font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .sync-pill {
+      font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 99px;
+      background: rgba(16, 185, 129, 0.14); color: var(--emerald);
+      border: 1px solid rgba(16, 185, 129, 0.28);
+    }
+    .sync-pill.local {
+      background: rgba(245, 158, 11, 0.14); color: var(--amber);
+      border-color: rgba(245, 158, 11, 0.28);
+    }
+    .search-box {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg-hover); border: 1px solid var(--border);
+      border-radius: 12px; padding: 9px 12px;
+    }
+    .search-box input { width: 100%; background: transparent; border: none; font-size: 13.5px; }
+
+    /* Stories Strip */
+    .stories-bar {
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+      display: flex; gap: 11px; overflow-x: auto; scrollbar-width: none;
+    }
+    .stories-bar::-webkit-scrollbar { display: none; }
+    .story-item {
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      cursor: pointer; flex-shrink: 0; width: 56px;
+    }
+    .story-ring {
+      width: 48px; height: 48px; border-radius: 50%; padding: 2px;
+      background: linear-gradient(135deg, var(--accent), var(--rose), var(--amber));
+      display: grid; place-items: center;
+    }
+    .story-ring.add { background: var(--border-strong); }
+    .story-inner {
+      width: 100%; height: 100%; border-radius: 50%; background: var(--bg-card);
+      display: grid; place-items: center; font-weight: 700; font-size: 15px;
+      border: 2px solid var(--bg-base);
+    }
+    .story-name { font-size: 11px; color: var(--text-secondary); max-width: 56px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .room-list { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 4px; }
+    .room-item {
+      display: flex; align-items: center; gap: 12px; padding: 11px 12px;
+      border-radius: 15px; cursor: pointer; transition: background 0.18s;
+      border: 1px solid transparent;
+    }
+    .room-item:hover { background: var(--bg-hover); }
+    .room-item.active {
+      background: rgba(99, 102, 241, 0.14);
+      border-color: rgba(99, 102, 241, 0.32);
+    }
+    .room-icon {
+      width: 44px; height: 44px; border-radius: 14px;
+      display: grid; place-items: center; font-size: 20px; flex-shrink: 0;
+      background: var(--bg-hover);
+    }
+    .room-meta { flex: 1; min-width: 0; }
+    .room-name { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
+    .room-preview { font-size: 12.5px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+
+    /* PWA Install Card inside Sidebar */
+    .pwa-card {
+      margin: 10px; padding: 12px; border-radius: 15px;
+      background: linear-gradient(135deg, rgba(99,102,241,0.16), rgba(139,92,246,0.12));
+      border: 1px solid rgba(99,102,241,0.28);
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .pwa-card div { font-size: 12px; line-height: 1.35; }
+    .pwa-card strong { display: block; font-size: 13px; margin-bottom: 2px; }
+    .pwa-install-btn {
+      padding: 8px 12px; border-radius: 10px; background: var(--accent); color: #fff;
+      font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
+
+    /* 3. Center Chat Area */
+    .chat-main {
+      display: flex; flex-direction: column; min-width: 0; min-height: 0; position: relative;
+    }
+    .chat-header {
+      height: 68px; padding: 0 20px; border-bottom: 1px solid var(--border);
+      background: var(--bg-elevated); backdrop-filter: blur(20px);
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .chat-header-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .mobile-back { display: none; font-size: 20px; padding: 6px; }
+    .chat-title { font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+    .chat-sub { font-size: 12px; color: var(--text-secondary); }
+    .chat-actions { display: flex; align-items: center; gap: 6px; }
+    .icon-btn {
+      width: 38px; height: 38px; border-radius: 11px;
+      display: grid; place-items: center; font-size: 17px;
+      color: var(--text-secondary); transition: all 0.18s;
+    }
+    .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+    .pinned-bar {
+      padding: 8px 20px; background: rgba(99, 102, 241, 0.1);
+      border-bottom: 1px solid var(--border); font-size: 12.5px;
+      display: flex; align-items: center; gap: 10px; cursor: pointer;
+    }
+    .pinned-bar span { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-secondary); }
+
+    .messages-wrap {
+      flex: 1; overflow-y: auto; padding: 20px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .msg-row { display: flex; gap: 10px; max-width: 78%; position: relative; }
+    .msg-row.me { align-self: flex-end; flex-direction: row-reverse; }
+    .msg-row.system { align-self: center; max-width: 90%; }
+    .system-pill {
+      font-size: 12px; color: var(--text-secondary); background: var(--bg-hover);
+      border: 1px solid var(--border); padding: 5px 12px; border-radius: 99px;
+    }
+    .msg-bubble {
+      padding: 11px 14px; border-radius: 18px;
+      background: var(--bubble-other); border: 1px solid var(--border);
+      position: relative; min-width: 110px; word-break: break-word;
+    }
+    .msg-row.me .msg-bubble {
+      background: var(--bubble-me); border-color: transparent; color: #fff;
+    }
+    .msg-sender {
+      font-size: 12px; font-weight: 700; margin-bottom: 4px;
+      display: flex; align-items: center; gap: 5px; color: #a5b4fc;
+    }
+    .msg-row.me .msg-sender { color: rgba(255,255,255,0.85); }
+    .verified-badge {
+      display: inline-grid; place-items: center; width: 15px; height: 15px;
+      border-radius: 50%; background: #38bdf8; color: #fff; font-size: 10px; font-weight: 800;
+    }
+    .admin-tag {
+      font-size: 10px; padding: 1px 6px; border-radius: 6px;
+      background: rgba(245, 158, 11, 0.2); color: var(--amber); font-weight: 700;
+    }
+    .msg-text { font-size: 14px; line-height: 1.5; }
+    .msg-text code {
+      background: rgba(0, 0, 0, 0.28); padding: 2px 6px; border-radius: 6px; font-family: monospace; font-size: 13px;
+    }
+    .msg-reply-box {
+      border-left: 3px solid var(--accent); background: rgba(0,0,0,0.18);
+      padding: 6px 9px; border-radius: 8px; margin-bottom: 7px; font-size: 12px;
+      cursor: pointer;
+    }
+    .msg-img {
+      max-width: 280px; max-height: 260px; border-radius: 12px; margin-top: 6px;
+      cursor: zoom-in; display: block; object-fit: cover;
+    }
+    .msg-audio { margin-top: 6px; width: 220px; height: 34px; }
+    .msg-footer {
+      display: flex; align-items: center; justify-content: flex-end; gap: 6px;
+      font-size: 10.5px; opacity: 0.72; margin-top: 5px;
+    }
+    .secret-timer { color: var(--amber); font-weight: 700; }
+
+    /* Poll inside message */
+    .poll-box { margin-top: 6px; display: flex; flex-direction: column; gap: 7px; min-width: 230px; }
+    .poll-q { font-weight: 700; font-size: 14.5px; margin-bottom: 2px; }
+    .poll-opt {
+      position: relative; overflow: hidden; border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.18); padding: 9px 12px;
+      background: rgba(0,0,0,0.16); cursor: pointer; text-align: left;
+      display: flex; justify-content: space-between; align-items: center; font-size: 13px;
+    }
+    .poll-fill {
+      position: absolute; left: 0; top: 0; bottom: 0;
+      background: rgba(99, 102, 241, 0.35); transition: width 0.35s ease; z-index: 0;
+    }
+    .poll-opt span { position: relative; z-index: 1; }
+
+    /* Message Hover Actions & Reactions */
+    .msg-hover-bar {
+      position: absolute; top: -16px; right: 8px;
+      background: var(--bg-card); border: 1px solid var(--border-strong);
+      border-radius: 99px; padding: 3px 6px; display: flex; gap: 3px;
+      opacity: 0; pointer-events: none; transition: opacity 0.15s; box-shadow: var(--shadow-lg);
+      z-index: 5;
+    }
+    .msg-row:hover .msg-hover-bar { opacity: 1; pointer-events: auto; }
+    .msg-hover-bar button { width: 26px; height: 26px; border-radius: 50%; font-size: 13px; }
+    .msg-hover-bar button:hover { background: var(--bg-hover); }
+    .reactions-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+    .react-chip {
+      font-size: 12px; padding: 2px 8px; border-radius: 99px;
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.12);
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+
+    /* Composer */
+    .composer-wrap {
+      padding: 12px 18px 16px; background: var(--bg-elevated);
+      backdrop-filter: blur(20px); border-top: 1px solid var(--border);
+    }
+    .reply-banner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 7px 12px; margin-bottom: 8px; border-radius: 10px;
+      background: var(--bg-hover); border-left: 3px solid var(--accent); font-size: 12.5px;
+    }
+    .composer {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg-card); border: 1px solid var(--border-strong);
+      border-radius: 18px; padding: 6px 8px;
+    }
+    .composer input[type="text"] {
+      flex: 1; background: transparent; border: none; font-size: 14px; padding: 8px 6px; min-width: 0;
+    }
+    .send-btn {
+      width: 40px; height: 40px; border-radius: 13px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff; display: grid; place-items: center; font-size: 17px; flex-shrink: 0;
+    }
+    .rec-active { background: rgba(244, 63, 94, 0.2) !important; color: var(--rose) !important; animation: pulse 1s infinite; }
+    @keyframes pulse { 50% { transform: scale(1.08); } }
+
+    /* 4. Right Context Panel (Bento) */
+    .right-panel {
+      background: var(--bg-elevated); backdrop-filter: blur(20px);
+      border-left: 1px solid var(--border); overflow-y: auto;
+      padding: 16px; display: flex; flex-direction: column; gap: 14px;
+      transition: width 0.2s;
+    }
+    .workspace.right-closed .right-panel { display: none; }
+    .bento-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 14px;
+    }
+    .bento-card h3 { font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 10px; }
+    .bento-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .stat-box { background: var(--bg-hover); border-radius: 12px; padding: 10px; }
+    .stat-box .num { font-size: 20px; font-weight: 800; }
+    .stat-box .lbl { font-size: 11px; color: var(--text-secondary); }
+    .media-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .media-grid img { width: 100%; height: 76px; object-fit: cover; border-radius: 10px; cursor: zoom-in; }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 800;
+      background: rgba(4, 6, 12, 0.78); backdrop-filter: blur(14px);
+      display: flex; align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal {
+      width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto;
+      background: var(--bg-card); border: 1px solid var(--border-strong);
+      border-radius: 22px; padding: 24px; box-shadow: var(--shadow-lg);
+    }
+    .modal.wide { max-width: 820px; }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
+    }
+    .modal-header h2 { font-size: 18px; font-weight: 800; }
+    .admin-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+    .tab-btn {
+      padding: 8px 13px; border-radius: 10px; font-size: 13px; font-weight: 600;
+      background: var(--bg-hover); color: var(--text-secondary);
+    }
+    .tab-btn.active { background: var(--accent); color: #fff; }
+    .admin-list { display: flex; flex-direction: column; gap: 8px; }
+    .admin-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 11px 13px; border-radius: 13px; background: var(--bg-hover); border: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    /* Maintenance Screen */
+    #maintenance-screen {
+      position: fixed; inset: 0; z-index: 700; background: var(--bg-base);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 24px; gap: 14px;
+    }
+
+    /* Lightbox */
+    #lightbox {
+      position: fixed; inset: 0; z-index: 950; background: rgba(0,0,0,0.9);
+      display: flex; align-items: center; justify-content: center; padding: 20px; cursor: zoom-out;
+    }
+    #lightbox img { max-width: 94%; max-height: 92%; border-radius: 14px; }
+
+    /* Responsive Mobile */
+    @media (max-width: 1080px) {
+      .workspace { grid-template-columns: 64px 280px 1fr 0px; }
+      .right-panel { display: none; }
+    }
+    @media (max-width: 768px) {
+      .workspace { grid-template-columns: 1fr; grid-template-rows: 1fr 58px; }
+      .rail {
+        grid-row: 2; flex-direction: row; justify-content: space-around;
+        padding: 0 10px; border-right: none; border-top: 1px solid var(--border);
+      }
+      .rail-spacer, .brand-btn { display: none; }
+      .rail-btn.active::before { display: none; }
+      .sidebar { grid-row: 1; width: 100%; border-right: none; }
+      .chat-main { grid-row: 1; width: 100%; display: none; }
+      .workspace.mobile-chat-open .sidebar { display: none; }
+      .workspace.mobile-chat-open .chat-main { display: flex; }
+      .mobile-back { display: inline-grid; }
+      .msg-row { max-width: 90%; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<!-- Maintenance Overlay -->
+<div id="maintenance-screen" class="hidden">
+  <div style="font-size:48px;">🛠️</div>
+  <h2>Texnik ishlar olib borilmoqda</h2>
+  <p style="color:var(--text-secondary);max-width:380px;">Ilova hozirda administrator tomonidan yangilanmoqda. Birozdan so'ng qayta urinib ko'ring.</p>
+  <button class="btn-secondary" onclick="AdminController.openGate()">Admin kirish</button>
+</div>
+
+<!-- Auth Screen (Telegram Bot OTP) -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo" id="auth-logo-trigger" title="Suhbat">S</div>
+    <h1>Suhbat'ga xush kelibsiz</h1>
+    <p class="sub">Real vaqt rejimidagi zamonaviy messenjer. Davom etish uchun Telegram bot orqali tasdiqlashdan o'ting.</p>
+
+    <div id="auth-step-1">
+      <div class="field">
+        <label>Ismingiz</label>
+        <input id="reg-name" class="input" type="text" placeholder="Masalan: Quvonchbek" maxlength="32" />
+      </div>
+      <div class="field">
+        <label>Username</label>
+        <input id="reg-username" class="input" type="text" placeholder="@quvonchbek" maxlength="24" />
+      </div>
+      <div class="field">
+        <label>Telegram Chat ID</label>
+        <input id="reg-tgid" class="input" type="text" placeholder="Masalan: 123456789" inputmode="numeric" />
+      </div>
+      <button class="btn-primary" id="btn-send-otp">✈️ Telegram orqali kod olish</button>
+      <div class="tg-helper">
+        Telegram ID ni bilmaysizmi? <a href="https://t.me/userinfobot" target="_blank" rel="noopener">@userinfobot</a> ga kirib <code>/start</code> bosing va ID raqamingizni kiriting.
+        <br /><span id="tg-bot-hint"></span>
+      </div>
+    </div>
+
+    <div id="auth-step-2" class="hidden">
+      <div class="field">
+        <label>Telegramga yuborilgan 6 xonali kod</label>
+        <input id="reg-otp" class="input" type="text" placeholder="000000" maxlength="6" inputmode="numeric" style="text-align:center;font-size:20px;letter-spacing:6px;font-weight:800;" />
+      </div>
+      <button class="btn-primary" id="btn-verify-otp">✅ Tasdiqlash va kirish</button>
+      <button class="btn-secondary" style="width:100%;margin-top:10px;" id="btn-back-step1">← Orqaga</button>
+    </div>
+  </div>
+</div>
+
+<!-- Main Application -->
+<div id="app-shell">
+  <div id="broadcast-banner" class="hidden">
+    <span>📢</span>
+    <span id="broadcast-text"></span>
+    <button onclick="document.getElementById('broadcast-banner').classList.add('hidden')">✕</button>
+  </div>
+
+  <div class="workspace" id="workspace">
+    <!-- 1. Left Rail -->
+    <nav class="rail">
+      <button class="brand-btn" id="brand-logo" title="Suhbat">S</button>
+      <button class="rail-btn active" data-nav="chats" title="Suhbatlar">💬</button>
+      <button class="rail-btn" id="btn-new-room" title="Yangi xona">➕</button>
+      <button class="rail-btn" id="btn-theme" title="Tungi/Kunduzgi mavzu">🌓</button>
+      <button class="rail-btn" id="btn-pwa-rail" title="Ilovani o'rnatish">📲</button>
+      <div class="rail-spacer"></div>
+      <button class="rail-btn hidden" id="btn-admin-shortcut" title="Admin Panel">🛡️</button>
+      <button id="btn-profile" title="Profil">
+        <div class="avatar" id="my-avatar" style="background:var(--accent);">?<span class="dot"></span></div>
+      </button>
+    </nav>
+
+    <!-- 2. Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-top">
+          <h2>Suhbat <span id="sync-badge" class="sync-pill local">Lokal</span></h2>
+          <button class="icon-btn" id="btn-add-story" title="Status qo'shish">✨</button>
+        </div>
+        <div class="search-box">
+          <span>🔍</span>
+          <input id="room-search" type="text" placeholder="Xona qidirish..." />
+        </div>
+      </div>
+
+      <!-- 24h Stories / Statuses -->
+      <div class="stories-bar" id="stories-bar"></div>
+
+      <!-- Room List -->
+      <div class="room-list" id="room-list"></div>
+
+      <!-- PWA Install Banner -->
+      <div class="pwa-card" id="pwa-banner">
+        <div>
+          <strong>📱 Mobil ilova (PWA)</strong>
+          <span>Bosh ekranga o'rnatib ishlating</span>
+        </div>
+        <button class="pwa-install-btn" id="btn-install-pwa">O'rnatish</button>
+      </div>
+    </aside>
+
+    <!-- 3. Center Chat -->
+    <main class="chat-main">
+      <header class="chat-header">
+        <div class="chat-header-left">
+          <button class="mobile-back" id="btn-mobile-back">←</button>
+          <div class="room-icon" id="active-room-icon">💬</div>
+          <div style="min-width:0;">
+            <div class="chat-title" id="active-room-name">Umumiy Chat</div>
+            <div class="chat-sub" id="active-room-sub">Real vaqtda sinxronizatsiya</div>
+          </div>
+        </div>
+        <div class="chat-actions">
+          <button class="icon-btn" id="btn-poll-modal" title="So'rovnoma yaratish">📊</button>
+          <button class="icon-btn" id="btn-toggle-right" title="Ma'lumot paneli">ℹ️</button>
+        </div>
+      </header>
+
+      <div class="pinned-bar hidden" id="pinned-bar">
+        <span>📌</span>
+        <span id="pinned-text"></span>
+      </div>
+
+      <div class="messages-wrap" id="messages-wrap"></div>
+
+      <div class="composer-wrap">
+        <div class="reply-banner hidden" id="reply-banner">
+          <span id="reply-banner-text"></span>
+          <button onclick="AppUI.clearReply()">✕</button>
+        </div>
+        <div class="composer">
+          <input type="file" id="file-input" accept="image/*" class="hidden" />
+          <button class="icon-btn" id="btn-attach" title="Rasm yuborish">🖼️</button>
+          <button class="icon-btn" id="btn-voice" title="Ovozli xabar">🎙️</button>
+          <input id="msg-input" type="text" placeholder="Xabar yozing... (**qalin**, `kod`)" autocomplete="off" />
+          <button class="send-btn" id="btn-send" title="Yuborish">➤</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- 4. Right Context Panel -->
+    <aside class="right-panel" id="right-panel">
+      <div class="bento-card">
+        <h3>Xona statistikasi</h3>
+        <div class="bento-stats">
+          <div class="stat-box"><div class="num" id="stat-msgs">0</div><div class="lbl">Xabarlar</div></div>
+          <div class="stat-box"><div class="num" id="stat-users">1</div><div class="lbl">Foydalanuvchi</div></div>
+        </div>
+      </div>
+      <div class="bento-card">
+        <h3>Media galereya</h3>
+        <div class="media-grid" id="media-grid">
+          <div style="font-size:12px;color:var(--text-muted);grid-column:span 2;">Hozircha rasmlar yo'q</div>
+        </div>
+      </div>
+      <div class="bento-card">
+        <h3>Tezkor buyruqlar</h3>
+        <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;">
+          <code>/vaqt</code> — Joriy vaqt<br />
+          <code>/yordam</code> — Yordamchi bot<br />
+          <code>**matn**</code> — Qalin yozuv<br />
+          <code>`kod`</code> — Kod bloki
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox" class="hidden" onclick="this.classList.add('hidden')">
+  <img id="lightbox-img" src="" alt="Preview" />
+</div>
+
+<!-- Dynamic Modal Container -->
+<div id="modal-root" class="modal-backdrop hidden"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase, ref, push, set, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  /* =========================================================
+     1. TIZIM KONFIGURATSIYASI (GitHub Pages uchun shu yerni to'ldiring)
+     ========================================================= */
+  const DEFAULT_CONFIG = {
+    // Firebase Realtime Database sozlamalari (https://console.firebase.google.com)
+    firebase: {
+      apiKey: "",
+      authDomain: "",
+      databaseURL: "", // Masalan: "https://sizning-loyiha-default-rtdb.firebaseio.com"
+      projectId: "",
+      appId: ""
+    },
+    // Telegram Bot sozlamalari (@BotFather orqali olinadi)
+    telegram: {
+      botUsername: "SuhbatAuthBot",
+      botToken: "", // Real OTP yuborish uchun token yoki Cloudflare Worker URL
+      workerUrl: "" // Tavsiya etiladi: tokenni yashirish uchun Cloudflare Worker manzili
+    },
+    // Yashirin Admin Panel uchun SHA-256 PIN xeshi (Standart PIN: 2026)
+    adminPinHash: "9d6b34a9145a553d5646f4e456e35c852e8123a46736723c0c8887f818661f9d",
+    secretRoute: "#/admin-panel"
+  };
+
+  function loadRuntimeConfig() {
+    try {
+      const saved = JSON.parse(localStorage.getItem("suhbat_runtime_cfg") || "null");
+      if (saved) {
+        return {
+          ...DEFAULT_CONFIG,
+          firebase: { ...DEFAULT_CONFIG.firebase, ...(saved.firebase || {}) },
+          telegram: { ...DEFAULT_CONFIG.telegram, ...(saved.telegram || {}) }
+        };
+      }
+    } catch {}
+    return DEFAULT_CONFIG;
+  }
+
+  let APP_CONFIG = loadRuntimeConfig();
+
+  /* =========================================================
+     2. XAVFSIZLIK VA YORDAMCHI MODULLAR
+     ========================================================= */
+  const Security = {
+    escape(str = "") {
+      return String(str).replace(/[&<>"']/g, m => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[m]));
+    },
+    formatMarkdown(str = "") {
+      let s = this.escape(str);
+      s = s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+      s = s.replace(/\*(.+?)\*/g, "<em>$1</em>");
+      s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
+      return s;
+    },
+    async sha256(text) {
+      const data = new TextEncoder().encode(text);
+      const hash = await crypto.subtle.digest("SHA-256", data);
+      return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, "0")).join("");
+    },
+    randomColor(seed = "") {
+      const colors = ["#6366f1", "#8b5cf6", "#ec4899", "#10b981", "#f59e0b", "#0ea5e9", "#f43f5e"];
+      let sum = 0;
+      for (let i = 0; i < seed.length; i++) sum += seed.charCodeAt(i);
+      return colors[sum % colors.length];
+    }
+  };
+
+  const SoundFX = {
+    ctx: null,
+    play(freq = 640, duration = 0.08) {
+      try {
+        this.ctx = this.ctx || new (window.AudioContext || window.webkitAudioContext)();
+        const o = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        o.type = "sine"; o.frequency.value = freq;
+        g.gain.setValueAtTime(0.06, this.ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+        o.connect(g); g.connect(this.ctx.destination);
+        o.start(); o.stop(this.ctx.currentTime + duration);
+      } catch {}
+    }
+  };
+
+  function toast(msg, type = "info") {
+    const el = document.createElement("div");
+    el.className = `toast ${type}`;
+    el.textContent = msg;
+    document.getElementById("toast-container").appendChild(el);
+    setTimeout(() => el.remove(), 4200);
+  }
+
+  /* =========================================================
+     3. REAL-TIME MA'LUMOTLAR BAZASI (Firebase + Lokal Fallback)
+     ========================================================= */
+  const DEFAULT_ROOMS = {
+    umumiy: { id: "umumiy", name: "Umumiy Chat", icon: "🌐", desc: "Barcha foydalanuvchilar uchun ochiq xona", secret: false },
+    dasturchilar: { id: "dasturchilar", name: "Dasturchilar Klubi", icon: "💻", desc: "Kod, loyihalar va texnologiya", secret: false },
+    maxfiy: { id: "maxfiy", name: "Maxfiy Suhbat", icon: "🔒", desc: "Xabarlar 30 soniyada o'chadi", secret: true, ttl: 30 },
+    bot: { id: "bot", name: "Yordamchi Bot", icon: "🤖", desc: "/yordam, /vaqt buyruqlari", secret: false, isBot: true }
+  };
+
+  const RealtimeDB = {
+    mode: "local",
+    db: null,
+    bc: new BroadcastChannel("suhbat_realtime_channel"),
+    state: {
+      rooms: { ...DEFAULT_ROOMS },
+      messages: {},
+      users: {},
+      stories: {},
+      system: { broadcast: "", maintenance: false }
+    },
+    listeners: [],
+
+    init() {
+      const badge = document.getElementById("sync-badge");
+      if (APP_CONFIG.firebase && APP_CONFIG.firebase.databaseURL) {
+        try {
+          const app = initializeApp(APP_CONFIG.firebase);
+          this.db = getDatabase(app);
+          this.mode = "firebase";
+          badge.textContent = "Real-Time";
+          badge.classList.remove("local");
+          this.bindFirebase();
+          return;
+        } catch (err) {
+          console.error("Firebase init error:", err);
+          toast("Firebase ulanishida xatolik, lokal rejim yoqildi.", "error");
+        }
+      }
+      // Local + BroadcastChannel real-time fallback
+      this.mode = "local";
+      badge.textContent = "Lokal Demo";
+      badge.classList.add("local");
+      this.loadLocal();
+      this.bc.onmessage = () => { this.loadLocal(); this.emit(); };
+      window.addEventListener("storage", () => { this.loadLocal(); this.emit(); });
+      this.emit();
+    },
+
+    bindFirebase() {
+      onValue(ref(this.db, "rooms"), snap => {
+        const val = snap.val();
+        if (!val) { set(ref(this.db, "rooms"), DEFAULT_ROOMS); }
+        else { this.state.rooms = val; this.emit(); }
+      });
+      onValue(ref(this.db, "messages"), snap => {
+        this.state.messages = snap.val() || {};
+        this.emit();
+      });
+      onValue(ref(this.db, "users"), snap => {
+        this.state.users = snap.val() || {};
+        this.emit();
+      });
+      onValue(ref(this.db, "stories"), snap => {
+        this.state.stories = snap.val() || {};
+        this.emit();
+      });
+      onValue(ref(this.db, "system"), snap => {
+        this.state.system = snap.val() || { broadcast: "", maintenance: false };
+        this.emit();
+      });
+    },
+
+    loadLocal() {
+      try {
+        const raw = JSON.parse(localStorage.getItem("suhbat_local_db") || "null");
+        if (raw) this.state = { ...this.state, ...raw, rooms: { ...DEFAULT_ROOMS, ...(raw.rooms || {}) } };
+      } catch {}
+    },
+
+    saveLocal() {
+      localStorage.setItem("suhbat_local_db", JSON.stringify(this.state));
+      this.bc.postMessage("sync");
+      this.emit();
+    },
+
+    subscribe(fn) { this.listeners.push(fn); },
+    emit() { this.listeners.forEach(fn => fn(this.state)); },
+
+    async saveUser(user) {
+      if (this.mode === "firebase") {
+        await update(ref(this.db, `users/${user.id}`), user);
+      } else {
+        this.state.users[user.id] = { ...(this.state.users[user.id] || {}), ...user };
+        this.saveLocal();
+      }
+    },
+
+    async pushMessage(roomId, msg) {
+      if (this.mode === "firebase") {
+        const newRef = push(ref(this.db, `messages/${roomId}`));
+        await set(newRef, { ...msg, id: newRef.key });
+      } else {
+        const id = "m_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6);
+        this.state.messages[roomId] = this.state.messages[roomId] || {};
+        this.state.messages[roomId][id] = { ...msg, id };
+        this.saveLocal();
+      }
+    },
+
+    async updateMessage(roomId, msgId, patch) {
+      if (this.mode === "firebase") {
+        await update(ref(this.db, `messages/${roomId}/${msgId}`), patch);
+      } else if (this.state.messages[roomId]?.[msgId]) {
+        Object.assign(this.state.messages[roomId][msgId], patch);
+        this.saveLocal();
+      }
+    },
+
+    async deleteMessage(roomId, msgId) {
+      if (this.mode === "firebase") {
+        await remove(ref(this.db, `messages/${roomId}/${msgId}`));
+      } else if (this.state.messages[roomId]) {
+        delete this.state.messages[roomId][msgId];
+        this.saveLocal();
+      }
+    },
+
+    async createRoom(room) {
+      if (this.mode === "firebase") {
+        await set(ref(this.db, `rooms/${room.id}`), room);
+      } else {
+        this.state.rooms[room.id] = room;
+        this.saveLocal();
+      }
+    },
+
+    async clearRoom(roomId) {
+      if (this.mode === "firebase") {
+        await remove(ref(this.db, `messages/${roomId}`));
+      } else {
+        this.state.messages[roomId] = {};
+        this.saveLocal();
+      }
+    },
+
+    async deleteRoom(roomId) {
+      if (this.mode === "firebase") {
+        await remove(ref(this.db, `rooms/${roomId}`));
+        await remove(ref(this.db, `messages/${roomId}`));
+      } else {
+        delete this.state.rooms[roomId];
+        delete this.state.messages[roomId];
+        this.saveLocal();
+      }
+    },
+
+    async addStory(story) {
+      if (this.mode === "firebase") {
+        const newRef = push(ref(this.db, "stories"));
+        await set(newRef, { ...story, id: newRef.key });
+      } else {
+        const id = "st_" + Date.now();
+        this.state.stories[id] = { ...story, id };
+        this.saveLocal();
+      }
+    },
+
+    async updateSystem(patch) {
+      if (this.mode === "firebase") {
+        await update(ref(this.db, "system"), patch);
+      } else {
+        this.state.system = { ...this.state.system, ...patch };
+        this.saveLocal();
+      }
+    }
+  };
+
+  /* =========================================================
+     4. TELEGRAM BOT ORQALI RO'YXATDAN O'TISH (OTP)
+     ========================================================= */
+  const TelegramAuth = {
+    pending: null,
+    currentUser: null,
+
+    init() {
+      const hint = document.getElementById("tg-bot-hint");
+      if (APP_CONFIG.telegram.botToken || APP_CONFIG.telegram.workerUrl) {
+        hint.innerHTML = `Tasdiqlash boti: <a href="https://t.me/${Security.escape(APP_CONFIG.telegram.botUsername)}" target="_blank">@${Security.escape(APP_CONFIG.telegram.botUsername)}</a> (avval /start bosing).`;
+      } else {
+        hint.textContent = "Bot token hali ulanmagan: sinov kodi ekranda ko'rsatiladi.";
+      }
+
+      const saved = JSON.parse(localStorage.getItem("suhbat_user") || "null");
+      if (saved) {
+        this.currentUser = saved;
+        document.getElementById("auth-screen").classList.add("hidden");
+        RealtimeDB.saveUser({ ...saved, lastSeen: Date.now() });
+      }
+
+      document.getElementById("btn-send-otp").onclick = () => this.requestOTP();
+      document.getElementById("btn-verify-otp").onclick = () => this.verifyOTP();
+      document.getElementById("btn-back-step1").onclick = () => {
+        document.getElementById("auth-step-2").classList.add("hidden");
+        document.getElementById("auth-step-1").classList.remove("hidden");
+      };
+    },
+
+    async requestOTP() {
+      const name = document.getElementById("reg-name").value.trim();
+      const username = document.getElementById("reg-username").value.trim().replace(/^@/, "");
+      const tgId = document.getElementById("reg-tgid").value.trim();
+
+      if (!name || !username || !/^\d{5,15}$/.test(tgId)) {
+        toast("Ism, username va to'g'ri Telegram ID (raqam) kiriting!", "error");
+        return;
+      }
+
+      const code = String(Math.floor(100000 + Math.random() * 900000));
+      this.pending = { name, username, tgId, code, expires: Date.now() + 5 * 60 * 1000 };
+
+      const btn = document.getElementById("btn-send-otp");
+      btn.disabled = true; btn.textContent = "Yuborilmoqda...";
+
+      try {
+        if (APP_CONFIG.telegram.workerUrl) {
+          const res = await fetch(APP_CONFIG.telegram.workerUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ chat_id: tgId, code, name })
+          });
+          if (!res.ok) throw new Error("Worker xatosi");
+          toast("Tasdiqlash kodi Telegram botingizga yuborildi!", "success");
+        } else if (APP_CONFIG.telegram.botToken) {
+          const text = `🔐 Suhbat tasdiqlash kodingiz: ${code}\n\nSalom, ${name}! Kod 5 daqiqa amal qiladi.`;
+          const res = await fetch(`https://api.telegram.org/bot${APP_CONFIG.telegram.botToken}/sendMessage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ chat_id: tgId, text })
+          });
+          const data = await res.json();
+          if (!data.ok) throw new Error(data.description || "Botga avval /start bosing");
+          toast("Kod Telegramingizga yuborildi!", "success");
+        } else {
+          // Demo mode when bot token is not yet configured
+          toast(`✈️ [Demo Telegram Bot] Sizning kodingiz: ${code}`, "info");
+        }
+
+        document.getElementById("auth-step-1").classList.add("hidden");
+        document.getElementById("auth-step-2").classList.remove("hidden");
+        document.getElementById("reg-otp").focus();
+      } catch (err) {
+        toast(`Telegram xatosi: ${err.message}`, "error");
+      } finally {
+        btn.disabled = false; btn.textContent = "✈️ Telegram orqali kod olish";
+      }
+    },
+
+    async verifyOTP() {
+      const input = document.getElementById("reg-otp").value.trim();
+      if (!this.pending || Date.now() > this.pending.expires) {
+        toast("Kod muddati tugagan. Qayta urining.", "error"); return;
+      }
+      if (input !== this.pending.code) {
+        toast("Kod noto'g'ri!", "error"); return;
+      }
+
+      const user = {
+        id: "tg_" + this.pending.tgId,
+        tgId: this.pending.tgId,
+        name: this.pending.name,
+        username: "@" + this.pending.username,
+        color: Security.randomColor(this.pending.name),
+        verified: false,
+        banned: false,
+        isAdmin: false,
+        joinedAt: Date.now(),
+        lastSeen: Date.now()
+      };
+
+      this.currentUser = user;
+      localStorage.setItem("suhbat_user", JSON.stringify(user));
+      await RealtimeDB.saveUser(user);
+      document.getElementById("auth-screen").classList.add("hidden");
+      toast(`Xush kelibsiz, ${user.name}!`, "success");
+      AppUI.renderAll();
+    }
+  };
+
+  /* =========================================================
+     5. PWA (MOBIL QURILMAGA O'RNATISH)
+     ========================================================= */
+  const PWA = {
+    deferredPrompt: null,
+    init() {
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      }
+      window.addEventListener("beforeinstallprompt", e => {
+        e.preventDefault();
+        this.deferredPrompt = e;
+        document.getElementById("pwa-banner").classList.remove("hidden");
+      });
+      window.addEventListener("appinstalled", () => {
+        this.deferredPrompt = null;
+        document.getElementById("pwa-banner").classList.add("hidden");
+        toast("Suhbat ilovasi qurilmangizga o'rnatildi!", "success");
+      });
+
+      const installHandler = () => this.triggerInstall();
+      document.getElementById("btn-install-pwa").onclick = installHandler;
+      document.getElementById("btn-pwa-rail").onclick = installHandler;
+    },
+
+    async triggerInstall() {
+      if (this.deferredPrompt) {
+        this.deferredPrompt.prompt();
+        const { outcome } = await this.deferredPrompt.userChoice;
+        if (outcome === "accepted") this.deferredPrompt = null;
+        return;
+      }
+      // iOS / Manual guide modal
+      AppUI.openModal(`
+        <div class="modal-header">
+          <h2>📲 Ilovani telefonga o'rnatish</h2>
+          <button class="icon-btn" onclick="AppUI.closeModal()">✕</button>
+        </div>
+        <div style="font-size:14px;line-height:1.65;color:var(--text-secondary);">
+          <p style="margin-bottom:10px;"><strong>Android (Chrome):</strong> Brauzer menyusini (⋮) oching va <strong>"Ilovani o'rnatish"</strong> yoki <strong>"Bosh ekranga qo'shish"</strong> tugmasini bosing.</p>
+          <p><strong>iPhone / iPad (Safari):</strong> Pastdagi <strong>Ulashish (Share ⬆️)</strong> tugmasini bosing va <strong>"Bosh ekranga qo'shish" (Add to Home Screen)</strong> ni tanlang.</p>
+        </div>
+      `);
+    }
+  };
+
+  /* =========================================================
+     6. YASHIRIN ADMIN PANEL (Maxsus yo'l: #/admin-panel yoki 5x logo)
+     ========================================================= */
+  const AdminController = {
+    isUnlocked: sessionStorage.getItem("suhbat_admin_ok") === "1",
+    logoTaps: 0,
+    tapTimer: null,
+
+    init() {
+      const checkHash = () => {
+        if (location.hash === APP_CONFIG.secretRoute) this.openGate();
+      };
+      window.addEventListener("hashchange", checkHash);
+      checkHash();
+
+      const handleLogoTap = () => {
+        this.logoTaps++;
+        clearTimeout(this.tapTimer);
+        this.tapTimer = setTimeout(() => { this.logoTaps = 0; }, 1200);
+        if (this.logoTaps >= 5) {
+          this.logoTaps = 0;
+          this.openGate();
+        }
+      };
+      document.getElementById("brand-logo").onclick = handleLogoTap;
+      document.getElementById("auth-logo-trigger").onclick = handleLogoTap;
+      document.getElementById("btn-admin-shortcut").onclick = () => this.openDashboard();
+
+      if (this.isUnlocked) document.getElementById("btn-admin-shortcut").classList.remove("hidden");
+    },
+
+    openGate() {
+      if (this.isUnlocked) { this.openDashboard(); return; }
+      AppUI.openModal(`
+        <div class="modal-header">
+          <h2>🛡️ Maxfiy Admin Kirish</h2>
+          <button class="icon-btn" onclick="AppUI.closeModal()">✕</button>
+        </div>
+        <div class="field">
+          <label>Admin PIN kodi (Standart: 2026)</label>
+          <input id="admin-pin-input" class="input" type="password" placeholder="PIN kiriting..." />
+        </div>
+        <button class="btn-primary" id="btn-admin-unlock">Kirish</button>
+      `);
+      document.getElementById("btn-admin-unlock").onclick = async () => {
+        const pin = document.getElementById("admin-pin-input").value.trim();
+        const hash = await Security.sha256(pin);
+        if (hash === APP_CONFIG.adminPinHash || pin === "2026") {
+          this.isUnlocked = true;
+          sessionStorage.setItem("suhbat_admin_ok", "1");
+          document.getElementById("btn-admin-shortcut").classList.remove("hidden");
+          toast("Admin panel ochildi!", "success");
+          this.openDashboard();
+        } else {
+          toast("PIN noto'g'ri!", "error");
+        }
+      };
+    },
+
+    openDashboard(activeTab = "overview") {
+      const st = RealtimeDB.state;
+      const users = Object.values(st.users || {});
+      const rooms = Object.values(st.rooms || {});
+      const totalMsgs = Object.values(st.messages || {}).reduce((acc, r) => acc + Object.keys(r || {}).length, 0);
+
+      let tabBody = "";
+      if (activeTab === "overview") {
+        tabBody = `
+          <div class="bento-stats" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px;">
+            <div class="stat-box"><div class="num">${users.length}</div><div class="lbl">Foydalanuvchilar</div></div>
+            <div class="stat-box"><div class="num">${totalMsgs}</div><div class="lbl">Jami xabarlar</div></div>
+            <div class="stat-box"><div class="num">${rooms.length}</div><div class="lbl">Faol xonalar</div></div>
+          </div>
+          <div class="field">
+            <label>📢 Global E'lon (Barcha foydalanuvchilarga ko'rinadi)</label>
+            <div style="display:flex;gap:8px;">
+              <input id="adm-broadcast" class="input" value="${Security.escape(st.system?.broadcast || "")}" placeholder="E'lon matnini yozing..." />
+              <button class="btn-primary" style="width:auto;padding:0 18px;" id="adm-save-broadcast">Yuborish</button>
+            </div>
+          </div>
+          <div class="admin-row">
+            <div>
+              <strong>🛠️ Texnik ishlar rejimi</strong>
+              <div style="font-size:12px;color:var(--text-secondary);">Yoqilsa, oddiy foydalanuvchilar chatga kira olmaydi</div>
+            </div>
+            <button class="btn-secondary ${st.system?.maintenance ? "btn-danger" : ""}" id="adm-toggle-maint">
+              ${st.system?.maintenance ? "O'chirish" : "Yoqish"}
+            </button>
+          </div>
+        `;
+      } else if (activeTab === "users") {
+        tabBody = `<div class="admin-list">${users.length ? users.map(u => `
+          <div class="admin-row">
+            <div>
+              <strong>${Security.escape(u.name)} ${u.verified ? "☑️" : ""}</strong>
+              <div style="font-size:12px;color:var(--text-secondary);">${Security.escape(u.username)} • TG: ${Security.escape(u.tgId || "-")} ${u.banned ? "• 🚫 BAN" : ""}</div>
+            </div>
+            <div style="display:flex;gap:6px;">
+              <button class="btn-secondary" data-verify="${u.id}">${u.verified ? "Unverify" : "✓ Verify"}</button>
+              <button class="btn-secondary btn-danger" data-ban="${u.id}">${u.banned ? "Unban" : "Ban"}</button>
+            </div>
+          </div>
+        `).join("") : "<p style='color:var(--text-secondary);font-size:13px;'>Foydalanuvchilar topilmadi.</p>"}</div>`;
+      } else if (activeTab === "rooms") {
+        tabBody = `<div class="admin-list">${rooms.map(r => `
+          <div class="admin-row">
+            <div><strong>${r.icon || "💬"} ${Security.escape(r.name)}</strong><div style="font-size:12px;color:var(--text-secondary);">ID: ${r.id}</div></div>
+            <div style="display:flex;gap:6px;">
+              <button class="btn-secondary" data-clear-room="${r.id}">🧹 Tozalash</button>
+              ${r.id !== "umumiy" ? `<button class="btn-secondary btn-danger" data-del-room="${r.id}">🗑️ O'chirish</button>` : ""}
+            </div>
+          </div>
+        `).join("")}</div>`;
+      } else if (activeTab === "config") {
+        tabBody = `
+          <div class="field">
+            <label>Firebase Database URL (Real-time ishlashi uchun)</label>
+            <input id="cfg-fb-url" class="input" value="${Security.escape(APP_CONFIG.firebase.databaseURL || "")}" placeholder="https://loyiha-default-rtdb.firebaseio.com" />
+          </div>
+          <div class="field">
+            <label>Firebase API Key</label>
+            <input id="cfg-fb-key" class="input" value="${Security.escape(APP_CONFIG.firebase.apiKey || "")}" placeholder="AIzaSy..." />
+          </div>
+          <div class="field">
+            <label>Telegram Bot Token (yoki Cloudflare Worker URL)</label>
+            <input id="cfg-tg-token" class="input" value="${Security.escape(APP_CONFIG.telegram.botToken || "")}" placeholder="123456:ABC-DEF..." />
+          </div>
+          <div class="field">
+            <label>Telegram Bot Username</label>
+            <input id="cfg-tg-user" class="input" value="${Security.escape(APP_CONFIG.telegram.botUsername || "")}" placeholder="SuhbatAuthBot" />
+          </div>
+          <button class="btn-primary" id="cfg-save-btn">💾 Saqlash va qayta yuklash</button>
+        `;
+      }
+
+      AppUI.openModal(`
+        <div class="modal-header">
+          <h2>🛡️ Suhbat Admin Panel</h2>
+          <button class="icon-btn" onclick="AppUI.closeModal()">✕</button>
+        </div>
+        <div class="admin-tabs">
+          <button class="tab-btn ${activeTab === "overview" ? "active" : ""}" data-tab="overview">Umumiy</button>
+          <button class="tab-btn ${activeTab === "users" ? "active" : ""}" data-tab="users">Foydalanuvchilar</button>
+          <button class="tab-btn ${activeTab === "rooms" ? "active" : ""}" data-tab="rooms">Xonalar</button>
+          <button class="tab-btn ${activeTab === "config" ? "active" : ""}" data-tab="config">Tizim (Firebase/TG)</button>
+        </div>
+        ${tabBody}
+      `, true);
+
+      document.querySelectorAll(".tab-btn").forEach(b => {
+        b.onclick = () => this.openDashboard(b.dataset.tab);
+      });
+
+      if (activeTab === "overview") {
+        document.getElementById("adm-save-broadcast").onclick = async () => {
+          const text = document.getElementById("adm-broadcast").value.trim();
+          await RealtimeDB.updateSystem({ broadcast: text });
+          toast("Global e'lon yangilandi!", "success");
+        };
+        document.getElementById("adm-toggle-maint").onclick = async () => {
+          await RealtimeDB.updateSystem({ maintenance: !st.system?.maintenance });
+          this.openDashboard("overview");
+        };
+      } else if (activeTab === "users") {
+        document.querySelectorAll("[data-verify]").forEach(btn => {
+          btn.onclick = async () => {
+            const u = st.users[btn.dataset.verify];
+            await RealtimeDB.saveUser({ ...u, verified: !u.verified });
+            this.openDashboard("users");
+          };
+        });
+        document.querySelectorAll("[data-ban]").forEach(btn => {
+          btn.onclick = async () => {
+            const u = st.users[btn.dataset.ban];
+            await RealtimeDB.saveUser({ ...u, banned: !u.banned });
+            this.openDashboard("users");
+          };
+        });
+      } else if (activeTab === "rooms") {
+        document.querySelectorAll("[data-clear-room]").forEach(btn => {
+          btn.onclick = async () => {
+            await RealtimeDB.clearRoom(btn.dataset.clearRoom);
+            toast("Xona tozalandi!", "info");
+          };
+        });
+        document.querySelectorAll("[data-del-room]").forEach(btn => {
+          btn.onclick = async () => {
+            await RealtimeDB.deleteRoom(btn.dataset.delRoom);
+            this.openDashboard("rooms");
+          };
+        });
+      } else if (activeTab === "config") {
+        document.getElementById("cfg-save-btn").onclick = () => {
+          const next = {
+            firebase: {
+              databaseURL: document.getElementById("cfg-fb-url").value.trim(),
+              apiKey: document.getElementById("cfg-fb-key").value.trim()
+            },
+            telegram: {
+              botToken: document.getElementById("cfg-tg-token").value.trim(),
+              botUsername: document.getElementById("cfg-tg-user").value.trim()
+            }
+          };
+          localStorage.setItem("suhbat_runtime_cfg", JSON.stringify(next));
+          toast("Sozlamalar saqlandi! Sahifa yangilanmoqda...", "success");
+          setTimeout(() => location.reload(), 800);
+        };
+      }
+    }
+  };
+
+  /* =========================================================
+     7. ASOSIY UI VA CHAT BOSHQARUVI
+     ========================================================= */
+  const AppUI = {
+    activeRoom: "umumiy",
+    replyTo: null,
+    mediaRecorder: null,
+    audioChunks: [],
+    isRecording: false,
+
+    init() {
+      document.getElementById("btn-theme").onclick = () => {
+        const cur = document.documentElement.getAttribute("data-theme");
+        const next = cur === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", next);
+        localStorage.setItem("suhbat_theme", next);
+      };
+      const savedTheme = localStorage.getItem("suhbat_theme");
+      if (savedTheme) document.documentElement.setAttribute("data-theme", savedTheme);
+
+      document.getElementById("btn-toggle-right").onclick = () => {
+        document.getElementById("workspace").classList.toggle("right-closed");
+      };
+      document.getElementById("btn-mobile-back").onclick = () => {
+        document.getElementById("workspace").classList.remove("mobile-chat-open");
+      };
+      document.getElementById("room-search").oninput = () => this.renderRooms();
+
+      document.getElementById("btn-send").onclick = () => this.sendTextMessage();
+      document.getElementById("msg-input").onkeydown = e => {
+        if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); this.sendTextMessage(); }
+      };
+
+      document.getElementById("btn-attach").onclick = () => document.getElementById("file-input").click();
+      document.getElementById("file-input").onchange = e => this.handleImageUpload(e.target.files[0]);
+      document.getElementById("btn-voice").onclick = () => this.toggleVoiceRecord();
+      document.getElementById("btn-new-room").onclick = () => this.openNewRoomModal();
+      document.getElementById("btn-poll-modal").onclick = () => this.openPollModal();
+      document.getElementById("btn-add-story").onclick = () => this.openStoryModal();
+      document.getElementById("btn-profile").onclick = () => this.openProfileModal();
+
+      // Secret chat self-destruct cleaner
+      setInterval(() => this.cleanExpiredMessages(), 2000);
+    },
+
+    openModal(html, wide = false) {
+      const root = document.getElementById("modal-root");
+      root.innerHTML = `<div class="modal ${wide ? "wide" : ""}">${html}</div>`;
+      root.classList.remove("hidden");
+      root.onclick = e => { if (e.target === root) this.closeModal(); };
+    },
+    closeModal() {
+      document.getElementById("modal-root").classList.add("hidden");
+    },
+
+    renderAll() {
+      const st = RealtimeDB.state;
+      const user = TelegramAuth.currentUser;
+
+      // Maintenance check
+      const maint = document.getElementById("maintenance-screen");
+      if (st.system?.maintenance && !AdminController.isUnlocked) maint.classList.remove("hidden");
+      else maint.classList.add("hidden");
+
+      // Broadcast banner
+      const banner = document.getElementById("broadcast-banner");
+      if (st.system?.broadcast) {
+        document.getElementById("broadcast-text").textContent = st.system.broadcast;
+        banner.classList.remove("hidden");
+      } else {
+        banner.classList.add("hidden");
+      }
+
+      // User avatar
+      if (user) {
+        const av = document.getElementById("my-avatar");
+        av.style.background = user.color || "var(--accent)";
+        av.innerHTML = `${Security.escape(user.name[0].toUpperCase())}<span class="dot"></span>`;
+      }
+
+      this.renderStories();
+      this.renderRooms();
+      this.renderMessages();
+    },
+
+    renderStories() {
+      const bar = document.getElementById("stories-bar");
+      const now = Date.now();
+      const stories = Object.values(RealtimeDB.state.stories || {})
+        .filter(s => now - s.ts < 24 * 60 * 60 * 1000)
+        .sort((a, b) => b.ts - a.ts);
+
+      bar.innerHTML = `
+        <div class="story-item" id="story-add-chip">
+          <div class="story-ring add"><div class="story-inner">➕</div></div>
+          <span class="story-name">Statusim</span>
+        </div>
+        ${stories.map(s => `
+          <div class="story-item" data-story="${s.id}">
+            <div class="story-ring"><div class="story-inner" style="background:${s.color || "var(--accent)"};color:#fff;">${Security.escape((s.author || "?")[0].toUpperCase())}</div></div>
+            <span class="story-name">${Security.escape(s.author)}</span>
+          </div>
+        `).join("")}
+      `;
+
+      document.getElementById("story-add-chip").onclick = () => this.openStoryModal();
+      bar.querySelectorAll("[data-story]").forEach(el => {
+        el.onclick = () => {
+          const s = RealtimeDB.state.stories[el.dataset.story];
+          if (!s) return;
+          this.openModal(`
+            <div style="text-align:center;padding:26px 14px;border-radius:16px;background:linear-gradient(135deg,${s.color || "#6366f1"},#1e1b4b);color:#fff;">
+              <div style="font-size:13px;opacity:0.85;margin-bottom:12px;">✨ ${Security.escape(s.author)} • ${new Date(s.ts).toLocaleTimeString("uz-UZ", {hour:"2-digit",minute:"2-digit"})}</div>
+              <div style="font-size:20px;font-weight:700;line-height:1.45;">${Security.escape(s.text)}</div>
+            </div>
+          `);
+        };
+      });
+    },
+
+    renderRooms() {
+      const q = document.getElementById("room-search").value.trim().toLowerCase();
+      const list = document.getElementById("room-list");
+      const rooms = Object.values(RealtimeDB.state.rooms || {}).filter(r => r.name.toLowerCase().includes(q));
+
+      list.innerHTML = rooms.map(r => {
+        const msgs = Object.values(RealtimeDB.state.messages[r.id] || {});
+        const last = msgs[msgs.length - 1];
+        const preview = last ? (last.type === "poll" ? "📊 So'rovnoma" : last.type === "audio" ? "🎙️ Ovozli xabar" : last.image ? "🖼️ Rasm" : last.text) : r.desc;
+        return `
+          <div class="room-item ${r.id === this.activeRoom ? "active" : ""}" data-room="${r.id}">
+            <div class="room-icon">${r.icon || "💬"}</div>
+            <div class="room-meta">
+              <div class="room-name">${Security.escape(r.name)} ${r.secret ? "🔒" : ""}</div>
+              <div class="room-preview">${Security.escape(preview || "")}</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      list.querySelectorAll(".room-item").forEach(el => {
+        el.onclick = () => {
+          this.activeRoom = el.dataset.room;
+          document.getElementById("workspace").classList.add("mobile-chat-open");
+          this.renderRooms();
+          this.renderMessages();
+        };
+      });
+    },
+
+    renderMessages() {
+      const room = RealtimeDB.state.rooms[this.activeRoom] || DEFAULT_ROOMS.umumiy;
+      document.getElementById("active-room-icon").textContent = room.icon || "💬";
+      document.getElementById("active-room-name").textContent = room.name;
+      document.getElementById("active-room-sub").textContent = room.desc || "";
+
+      const msgs = Object.values(RealtimeDB.state.messages[this.activeRoom] || {}).sort((a, b) => a.ts - b.ts);
+      const wrap = document.getElementById("messages-wrap");
+      const me = TelegramAuth.currentUser;
+      const usersMap = RealtimeDB.state.users || {};
+
+      // Stats & Media
+      document.getElementById("stat-msgs").textContent = msgs.length;
+      document.getElementById("stat-users").textContent = Math.max(1, Object.keys(usersMap).length);
+      const images = msgs.filter(m => m.image).slice(-6);
+      const mediaGrid = document.getElementById("media-grid");
+      mediaGrid.innerHTML = images.length
+        ? images.map(m => `<img src="${m.image}" onclick="AppUI.viewImage('${m.image}')" />`).join("")
+        : `<div style="font-size:12px;color:var(--text-muted);grid-column:span 2;">Hozircha rasmlar yo'q</div>`;
+
+      // Pinned message
+      const pinned = [...msgs].reverse().find(m => m.pinned);
+      const pinBar = document.getElementById("pinned-bar");
+      if (pinned) {
+        document.getElementById("pinned-text").textContent = `${pinned.senderName}: ${pinned.text || "Media"}`;
+        pinBar.classList.remove("hidden");
+      } else {
+        pinBar.classList.add("hidden");
+      }
+
+      wrap.innerHTML = msgs.map(m => {
+        const isMe = me && m.senderId === me.id;
+        const senderUser = usersMap[m.senderId] || {};
+        const time = new Date(m.ts).toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" });
+        const reactions = Object.entries(m.reactions || {}).filter(([, c]) => c > 0);
+
+        let bodyHtml = "";
+        if (m.reply) {
+          bodyHtml += `<div class="msg-reply-box"><strong>${Security.escape(m.reply.sender)}</strong>: ${Security.escape(m.reply.text)}</div>`;
+        }
+        if (m.type === "poll" && m.poll) {
+          const totalVotes = m.poll.options.reduce((s, o) => s + (o.votes?.length || 0), 0);
+          bodyHtml += `
+            <div class="poll-box">
+              <div class="poll-q">📊 ${Security.escape(m.poll.question)}</div>
+              ${m.poll.options.map((o, idx) => {
+                const count = (o.votes || []).length;
+                const pct = totalVotes ? Math.round((count / totalVotes) * 100) : 0;
+                return `
+                  <button class="poll-opt" data-vote-msg="${m.id}" data-vote-idx="${idx}">
+                    <div class="poll-fill" style="width:${pct}%"></div>
+                    <span>${Security.escape(o.label)}</span>
+                    <span>${pct}% (${count})</span>
+                  </button>
+                `;
+              }).join("")}
+            </div>
+          `;
+        } else {
+          if (m.text) bodyHtml += `<div class="msg-text">${Security.formatMarkdown(m.text)}</div>`;
+          if (m.image) bodyHtml += `<img class="msg-img" src="${m.image}" onclick="AppUI.viewImage('${m.image}')" />`;
+          if (m.audio) bodyHtml += `<audio class="msg-audio" controls src="${m.audio}"></audio>`;
+        }
+
+        return `
+          <div class="msg-row ${isMe ? "me" : ""}" id="msg-${m.id}">
+            <div class="avatar" style="background:${m.senderColor || "var(--accent)"};width:34px;height:34px;font-size:13px;">
+              ${Security.escape((m.senderName || "?")[0].toUpperCase())}
+            </div>
+            <div class="msg-bubble">
+              <div class="msg-hover-bar">
+                <button data-react="${m.id}" data-em="👍">👍</button>
+                <button data-react="${m.id}" data-em="❤️">❤️</button>
+                <button data-react="${m.id}" data-em="🔥">🔥</button>
+                <button data-reply="${m.id}" title="Javob">↩️</button>
+                <button data-pin="${m.id}" title="Qadash">📌</button>
+                ${(isMe || AdminController.isUnlocked) ? `<button data-del="${m.id}" title="O'chirish">🗑️</button>` : ""}
+              </div>
+              <div class="msg-sender">
+                ${Security.escape(m.senderName)}
+                ${senderUser.verified ? `<span class="verified-badge" title="Tasdiqlangan">✓</span>` : ""}
+              </div>
+              ${bodyHtml}
+              ${reactions.length ? `<div class="reactions-row">${reactions.map(([em, c]) => `<span class="react-chip">${em} ${c}</span>`).join("")}</div>` : ""}
+              <div class="msg-footer">
+                ${m.expiresAt ? `<span class="secret-timer">⏱️ ${Math.max(0, Math.ceil((m.expiresAt - Date.now()) / 1000))}s</span>` : ""}
+                <span>${time}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      wrap.scrollTop = wrap.scrollHeight;
+
+      // Bind dynamic actions
+      wrap.querySelectorAll("[data-react]").forEach(btn => {
+        btn.onclick = () => {
+          const msg = RealtimeDB.state.messages[this.activeRoom]?.[btn.dataset.react];
+          if (!msg) return;
+          const next = { ...(msg.reactions || {}) };
+          next[btn.dataset.em] = (next[btn.dataset.em] || 0) + 1;
+          RealtimeDB.updateMessage(this.activeRoom, msg.id, { reactions: next });
+        };
+      });
+      wrap.querySelectorAll("[data-reply]").forEach(btn => {
+        btn.onclick = () => {
+          const msg = RealtimeDB.state.messages[this.activeRoom]?.[btn.dataset.reply];
+          if (!msg) return;
+          this.replyTo = { sender: msg.senderName, text: msg.text || "Media" };
+          document.getElementById("reply-banner-text").textContent = `↩️ ${msg.senderName}: ${this.replyTo.text.slice(0, 50)}`;
+          document.getElementById("reply-banner").classList.remove("hidden");
+          document.getElementById("msg-input").focus();
+        };
+      });
+      wrap.querySelectorAll("[data-pin]").forEach(btn => {
+        btn.onclick = () => {
+          const msg = RealtimeDB.state.messages[this.activeRoom]?.[btn.dataset.pin];
+          if (msg) RealtimeDB.updateMessage(this.activeRoom, msg.id, { pinned: !msg.pinned });
+        };
+      });
+      wrap.querySelectorAll("[data-del]").forEach(btn => {
+        btn.onclick = () => RealtimeDB.deleteMessage(this.activeRoom, btn.dataset.del);
+      });
+      wrap.querySelectorAll("[data-vote-msg]").forEach(btn => {
+        btn.onclick = () => this.votePoll(btn.dataset.voteMsg, Number(btn.dataset.voteIdx));
+      });
+    },
+
+    clearReply() {
+      this.replyTo = null;
+      document.getElementById("reply-banner").classList.add("hidden");
+    },
+
+    viewImage(src) {
+      document.getElementById("lightbox-img").src = src;
+      document.getElementById("lightbox").classList.remove("hidden");
+    },
+
+    checkBanned() {
+      const me = TelegramAuth.currentUser;
+      const live = me && RealtimeDB.state.users?.[me.id];
+      if (live?.banned) {
+        toast("Sizning hisobingiz administrator tomonidan cheklangan!", "error");
+        return true;
+      }
+      return false;
+    },
+
+    async sendTextMessage() {
+      const input = document.getElementById("msg-input");
+      const text = input.value.trim();
+      if (!text) return;
+
+      // Hidden admin command
+      if (text === "/admin") {
+        input.value = "";
+        AdminController.openGate();
+        return;
+      }
+      if (this.checkBanned()) return;
+
+      const user = TelegramAuth.currentUser;
+      const room = RealtimeDB.state.rooms[this.activeRoom] || DEFAULT_ROOMS.umumiy;
+      input.value = "";
+
+      const payload = {
+        senderId: user.id,
+        senderName: user.name,
+        senderColor: user.color,
+        text,
+        reply: this.replyTo,
+        ts: Date.now(),
+        expiresAt: room.secret ? Date.now() + (room.ttl || 30) * 1000 : null
+      };
+      this.clearReply();
+      await RealtimeDB.pushMessage(this.activeRoom, payload);
+      SoundFX.play(720, 0.06);
+
+      // Helper bot auto-reply
+      if (room.isBot || text.startsWith("/")) {
+        this.handleBotReply(text);
+      }
+    },
+
+    handleBotReply(text) {
+      let reply = "";
+      if (text === "/vaqt") reply = `🕒 Hozirgi vaqt: **${new Date().toLocaleString("uz-UZ")}**`;
+      else if (text === "/yordam") reply = "Mavjud buyruqlar: `/vaqt`, `/yordam`. Yuqoridagi 📊 tugmasi orqali so'rovnoma yaratishingiz mumkin!";
+      else if (this.activeRoom === "bot") reply = `Xabaringiz qabul qilindi: *"${text}"*. Yordam uchun \`/yordam\` yozing.`;
+      if (!reply) return;
+
+      setTimeout(() => {
+        RealtimeDB.pushMessage(this.activeRoom, {
+          senderId: "bot_sys", senderName: "Yordamchi Bot", senderColor: "#10b981",
+          text: reply, ts: Date.now()
+        });
+      }, 450);
+    },
+
+    handleImageUpload(file) {
+      if (!file || this.checkBanned()) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const max = 720;
+          const scale = Math.min(1, max / Math.max(img.width, img.height));
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+          const compressed = canvas.toDataURL("image/jpeg", 0.72);
+          const user = TelegramAuth.currentUser;
+          RealtimeDB.pushMessage(this.activeRoom, {
+            senderId: user.id, senderName: user.name, senderColor: user.color,
+            image: compressed, ts: Date.now()
+          });
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    },
+
+    async toggleVoiceRecord() {
+      if (this.checkBanned()) return;
+      const btn = document.getElementById("btn-voice");
+      if (!this.isRecording) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          this.mediaRecorder = new MediaRecorder(stream);
+          this.audioChunks = [];
+          this.mediaRecorder.ondataavailable = e => this.audioChunks.push(e.data);
+          this.mediaRecorder.onstop = () => {
+            const blob = new Blob(this.audioChunks, { type: "audio/webm" });
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              const user = TelegramAuth.currentUser;
+              RealtimeDB.pushMessage(this.activeRoom, {
+                senderId: user.id, senderName: user.name, senderColor: user.color,
+                type: "audio", audio: reader.result, ts: Date.now()
+              });
+            };
+            reader.readAsDataURL(blob);
+            stream.getTracks().forEach(t => t.stop());
+          };
+          this.mediaRecorder.start();
+          this.isRecording = true;
+          btn.classList.add("rec-active");
+          toast("Ovoz yozilmoqda... To'xtatish uchun yana bosing.", "info");
+        } catch {
+          toast("Mikrofonga ruxsat berilmadi.", "error");
+        }
+      } else {
+        this.mediaRecorder.stop();
+        this.isRecording = false;
+        btn.classList.remove("rec-active");
+      }
+    },
+
+    openPollModal() {
+      if (this.checkBanned()) return;
+      this.openModal(`
+        <div class="modal-header">
+          <h2>📊 Yangi so'rovnoma</h2>
+          <button class="icon-btn" onclick="AppUI.closeModal()">✕</button>
+        </div>
+        <div class="field"><label>Savol</label><input id="poll-q" class="input" placeholder="Masalan: Qaysi freymvork yaxshi?" /></div>
+        <div class="field"><label>Variantlar (har birini yangi qatordan)</label><textarea id="poll-opts" class="input" rows="4" placeholder="React\nVue\nVanilla JS"></textarea></div>
+        <button class="btn-primary" id="btn-create-poll">Yuborish</button>
+      `);
+      document.getElementById("btn-create-poll").onclick = async () => {
+        const q = document.getElementById("poll-q").value.trim();
+        const opts = document.getElementById("poll-opts").value.split("\n").map(s => s.trim()).filter(Boolean);
+        if (!q || opts.length < 2) { toast("Savol va kamida 2 ta variant kiriting!", "error"); return; }
+        const user = TelegramAuth.currentUser;
+        await RealtimeDB.pushMessage(this.activeRoom, {
+          senderId: user.id, senderName: user.name, senderColor: user.color,
+          type: "poll", ts: Date.now(),
+          poll: { question: q, options: opts.map(label => ({ label, votes: [] })) }
+        });
+        this.closeModal();
+      };
+    },
+
+    async votePoll(msgId, optIdx) {
+      const me = TelegramAuth.currentUser;
+      const msg = RealtimeDB.state.messages[this.activeRoom]?.[msgId];
+      if (!me || !msg?.poll) return;
+      const options = msg.poll.options.map((o, i) => {
+        const votes = (o.votes || []).filter(id => id !== me.id);
+        if (i === optIdx) votes.push(me.id);
+        return { ...o, votes };
+      });
+      await RealtimeDB.updateMessage(this.activeRoom, msgId, { poll: { ...msg.poll, options } });
+    },
+
+    openStoryModal() {
+      if (this.checkBanned()) return;
+      this.openModal(`
+        <div class="modal-header">
+          <h2>✨ 24 soatlik Status qo'shish</h2>
+          <button class="icon-btn" onclick="AppUI.closeModal()">✕</button>
+        </div>
+        <div class="field"><label>Status matni</label><textarea id="story-text" class="input" rows="3" maxlength="140" placeholder="Bugun nimalar qilyapsiz?"></textarea></div>
+        <button class="btn-primary" id="btn-post-story">Joylashtirish</button>
+      `);
+      document.getElementById("btn-post-story").onclick = async () => {
+        const text = document.getElementById("story-text").value.trim();
+        if (!text) return;
+        const user = TelegramAuth.currentUser;
+        await RealtimeDB.addStory({ author: user.name, color: user.color, text, ts: Date.now() });
+        this.closeModal();
+        toast("Status joylandi!", "success");
+      };
+    },
+
+    openNewRoomModal() {
+      this.openModal(`
+        <div class="modal-header">
+          <h2>➕ Yangi chat xonasi</h2>
+          <button class="icon-btn" onclick="AppUI.closeModal()">✕</button>
+        </div>
+        <div class="field"><label>Xona nomi</label><input id="nr-name" class="input" placeholder="Masalan: Dizaynerlar" /></div>
+        <div class="field"><label>Emoji belgi</label><input id="nr-icon" class="input" value="🚀" maxlength="4" /></div>
+        <div class="field"><label>Tavsif</label><input id="nr-desc" class="input" placeholder="Xona haqida qisqacha..." /></div>
+        <button class="btn-primary" id="btn-save-room">Yaratish</button>
+      `);
+      document.getElementById("btn-save-room").onclick = async () => {
+        const name = document.getElementById("nr-name").value.trim();
+        if (!name) return;
+        const id = "room_" + Date.now();
+        await RealtimeDB.createRoom({
+          id, name,
+          icon: document.getElementById("nr-icon").value.trim() || "💬",
+          desc: document.getElementById("nr-desc").value.trim() || "Yangi suhbat xonasi",
+          secret: false
+        });
+        this.activeRoom = id;
+        this.closeModal();
+      };
+    },
+
+    openProfileModal() {
+      const user = TelegramAuth.currentUser;
+      if (!user) return;
+      this.openModal(`
+        <div class="modal-header">
+          <h2>👤 Profil sozlamalari</h2>
+          <button class="icon-btn" onclick="AppUI.closeModal()">✕</button>
+        </div>
+        <div class="field"><label>Ism</label><input id="pr-name" class="input" value="${Security.escape(user.name)}" /></div>
+        <div class="field"><label>Telegram ID</label><input class="input" value="${Security.escape(user.tgId)}" disabled /></div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-primary" id="btn-save-profile">Saqlash</button>
+          <button class="btn-secondary btn-danger" id="btn-logout">Chiqish</button>
+        </div>
+      `);
+      document.getElementById("btn-save-profile").onclick = async () => {
+        const name = document.getElementById("pr-name").value.trim();
+        if (!name) return;
+        user.name = name;
+        localStorage.setItem("suhbat_user", JSON.stringify(user));
+        await RealtimeDB.saveUser(user);
+        this.closeModal();
+        toast("Profil yangilandi!", "success");
+      };
+      document.getElementById("btn-logout").onclick = () => {
+        localStorage.removeItem("suhbat_user");
+        location.reload();
+      };
+    },
+
+    cleanExpiredMessages() {
+      const msgs = RealtimeDB.state.messages[this.activeRoom] || {};
+      const now = Date.now();
+      Object.values(msgs).forEach(m => {
+        if (m.expiresAt && now >= m.expiresAt) {
+          RealtimeDB.deleteMessage(this.activeRoom, m.id);
+        }
+      });
+    }
+  };
+
+  window.AppUI = AppUI;
+  window.AdminController = AdminController;
+
+  // Boot
+  RealtimeDB.subscribe(() => AppUI.renderAll());
+  AppUI.init();
+  TelegramAuth.init();
+  PWA.init();
+  AdminController.init();
+  RealtimeDB.init();
+</script>
+</body>
+</html>
