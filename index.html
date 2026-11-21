@@ -1,717 +1,725 @@
 <!DOCTYPE html>
-<html lang="uz" data-theme="dark">
+<html lang="uz" data-theme="telegram-dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#090B10" />
+  <meta name="theme-color" content="#17212b" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Suhbat" />
   <link rel="manifest" href="./manifest.json" />
-  <title>Suhbat — Real-Time Messenger</title>
+  <title>Suhbat — Zamonaviy Real-Time Messenger</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg-base: #090b10;
-      --bg-elevated: rgba(18, 22, 34, 0.78);
-      --bg-card: rgba(24, 29, 45, 0.85);
+      --bg-app: #0e1621;
+      --bg-sidebar: #17212b;
+      --bg-header: #17212b;
+      --bg-card: #1f2c3a;
+      --bg-input: #242f3d;
       --bg-hover: rgba(255, 255, 255, 0.06);
-      --border: rgba(255, 255, 255, 0.08);
+      --bg-active: rgba(42, 171, 238, 0.16);
+      --border: rgba(255, 255, 255, 0.07);
       --border-strong: rgba(255, 255, 255, 0.14);
-      --text-primary: #f3f5f9;
-      --text-secondary: #94a3b8;
-      --text-muted: #64748b;
-      --accent: #6366f1;
-      --accent-2: #8b5cf6;
-      --accent-glow: rgba(99, 102, 241, 0.35);
-      --emerald: #10b981;
+      --text-primary: #f5f7fa;
+      --text-secondary: #8a9aa9;
+      --text-muted: #6c7883;
+      --accent: #2aabee;
+      --accent-hover: #229ed9;
+      --accent-glow: rgba(42, 171, 238, 0.28);
+      --bubble-me: #2b5278;
+      --bubble-other: #182533;
+      --emerald: #22c55e;
       --amber: #f59e0b;
-      --rose: #f43f5e;
-      --bubble-me: linear-gradient(135deg, #6366f1, #7c3aed);
-      --bubble-other: rgba(30, 36, 54, 0.92);
-      --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.45);
-      --radius-sm: 10px;
-      --radius-md: 16px;
-      --radius-lg: 22px;
-      --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --rose: #ef4444;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+      --msg-size: 14.5px;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    [data-theme="obsidian"] {
+      --bg-app: #07090e;
+      --bg-sidebar: #0e121b;
+      --bg-header: #0e121b;
+      --bg-card: #151b28;
+      --bg-input: #1b2232;
+      --bubble-me: #4f46e5;
+      --bubble-other: #161d2b;
     }
 
     [data-theme="light"] {
-      --bg-base: #f1f5f9;
-      --bg-elevated: rgba(255, 255, 255, 0.86);
-      --bg-card: rgba(255, 255, 255, 0.96);
+      --bg-app: #dbe5ee;
+      --bg-sidebar: #ffffff;
+      --bg-header: #ffffff;
+      --bg-card: #ffffff;
+      --bg-input: #f1f4f8;
       --bg-hover: rgba(15, 23, 42, 0.05);
+      --bg-active: rgba(42, 171, 238, 0.14);
       --border: rgba(15, 23, 42, 0.08);
       --border-strong: rgba(15, 23, 42, 0.14);
       --text-primary: #0f172a;
-      --text-secondary: #475569;
-      --text-muted: #64748b;
+      --text-secondary: #5c6c7c;
+      --text-muted: #8492a0;
+      --bubble-me: #effdde;
       --bubble-other: #ffffff;
-      --shadow-lg: 0 20px 45px rgba(15, 23, 42, 0.12);
+      --shadow: 0 12px 35px rgba(15, 23, 42, 0.14);
     }
+
+    [data-theme="light"] .msg-row.me .msg-bubble { color: #0f172a; }
+    [data-theme="light"] .msg-row.me .msg-sender { color: #2b8a3e; }
+
+    /* Chat Wallpapers */
+    .wp-pattern {
+      background-color: var(--bg-app);
+      background-image:
+        radial-gradient(circle at 20% 20%, var(--accent-glow), transparent 45%),
+        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.12), transparent 45%),
+        radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 24px 24px;
+    }
+    .wp-aurora {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f2942 100%);
+    }
+    .wp-clean { background: var(--bg-app); }
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    html, body {
-      height: 100%; width: 100%; overflow: hidden;
-      font-family: var(--font);
-      background: var(--bg-base);
-      color: var(--text-primary);
-      background-image:
-        radial-gradient(circle at 12% 18%, rgba(99, 102, 241, 0.14), transparent 36%),
-        radial-gradient(circle at 88% 82%, rgba(139, 92, 246, 0.12), transparent 38%);
-    }
-
+    html, body { height: 100%; width: 100%; overflow: hidden; font-family: var(--font); background: var(--bg-app); color: var(--text-primary); }
     button, input, textarea, select { font-family: inherit; color: inherit; outline: none; }
     button { cursor: pointer; border: none; background: transparent; }
     .hidden { display: none !important; }
-
-    /* Scrollbars */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
-    ::-webkit-scrollbar-track { background: transparent; }
 
     /* Toast */
-    #toast-container {
-      position: fixed; top: 18px; right: 18px; z-index: 9999;
-      display: flex; flex-direction: column; gap: 10px; max-width: 340px;
-    }
+    #toast-root { position: fixed; top: 16px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; max-width: 340px; }
     .toast {
-      background: var(--bg-card); backdrop-filter: blur(18px);
-      border: 1px solid var(--border-strong); border-radius: var(--radius-md);
-      padding: 12px 16px; font-size: 13.5px; line-height: 1.45;
-      box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 10px;
-      animation: slideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 14px;
+      padding: 12px 15px; font-size: 13.5px; box-shadow: var(--shadow);
+      animation: fadeUp 0.22s ease; display: flex; align-items: center; gap: 8px;
     }
     .toast.success { border-left: 3px solid var(--emerald); }
     .toast.error { border-left: 3px solid var(--rose); }
     .toast.info { border-left: 3px solid var(--accent); }
-    @keyframes slideIn { from { opacity: 0; transform: translateY(-10px) scale(0.96); } to { opacity: 1; transform: none; } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
 
-    /* Global Broadcast Banner */
-    #broadcast-banner {
-      background: linear-gradient(90deg, rgba(99,102,241,0.92), rgba(139,92,246,0.92));
-      color: #fff; padding: 9px 16px; font-size: 13px; font-weight: 600;
-      display: flex; align-items: center; justify-content: center; gap: 10px;
-      z-index: 60; position: relative;
+    /* Global Broadcast */
+    #broadcast-bar {
+      background: linear-gradient(90deg, var(--accent), #6366f1); color: #fff;
+      padding: 8px 16px; font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center; gap: 10px; z-index: 50;
     }
-    #broadcast-banner button { color: rgba(255,255,255,0.85); font-size: 16px; margin-left: auto; }
+    #broadcast-bar button { margin-left: auto; color: #fff; font-size: 15px; }
 
-    /* Auth Overlay (Telegram Bot OTP) */
-    #auth-screen {
-      position: fixed; inset: 0; z-index: 500;
+    /* Auth & Passcode Screens */
+    .full-overlay {
+      position: fixed; inset: 0; z-index: 600;
       display: flex; align-items: center; justify-content: center; padding: 20px;
-      background: rgba(6, 8, 14, 0.84); backdrop-filter: blur(22px);
+      background: rgba(8, 12, 20, 0.88); backdrop-filter: blur(20px);
     }
     .auth-card {
-      width: 100%; max-width: 430px; background: var(--bg-card);
-      border: 1px solid var(--border-strong); border-radius: 26px;
-      padding: 30px; box-shadow: var(--shadow-lg);
+      width: 100%; max-width: 420px; background: var(--bg-sidebar);
+      border: 1px solid var(--border-strong); border-radius: 22px;
+      padding: 28px; box-shadow: var(--shadow);
     }
-    .auth-logo {
-      width: 54px; height: 54px; border-radius: 16px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      display: grid; place-items: center; font-size: 24px; font-weight: 800; color: #fff;
-      box-shadow: 0 12px 28px var(--accent-glow); margin-bottom: 16px;
+    .tg-logo {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #3b82f6);
+      display: grid; place-items: center; font-size: 26px; color: #fff; font-weight: 800;
+      margin-bottom: 16px; box-shadow: 0 10px 26px var(--accent-glow); cursor: pointer; user-select: none;
     }
-    .auth-card h1 { font-size: 23px; font-weight: 800; margin-bottom: 6px; }
-    .auth-card p.sub { color: var(--text-secondary); font-size: 13.5px; margin-bottom: 22px; line-height: 1.5; }
-    .field { margin-bottom: 14px; }
-    .field label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+    .auth-card h1 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+    .auth-card .sub { font-size: 13.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 20px; }
+    .field { margin-bottom: 13px; }
+    .field label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px; }
     .input {
-      width: 100%; padding: 12px 14px; border-radius: 13px;
-      background: var(--bg-hover); border: 1px solid var(--border);
-      font-size: 14px; transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%; padding: 11px 13px; border-radius: 12px;
+      background: var(--bg-input); border: 1px solid var(--border);
+      font-size: 14px; transition: border-color 0.18s;
     }
-    .input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+    .input:focus { border-color: var(--accent); }
     .btn-primary {
-      width: 100%; padding: 13px 16px; border-radius: 13px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      color: #fff; font-weight: 700; font-size: 14.5px;
-      box-shadow: 0 10px 24px var(--accent-glow);
-      transition: transform 0.15s, opacity 0.2s;
+      width: 100%; padding: 12px 16px; border-radius: 12px;
+      background: var(--accent); color: #fff; font-weight: 700; font-size: 14px;
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      transition: background 0.18s, transform 0.1s;
     }
-    .btn-primary:hover { opacity: 0.95; transform: translateY(-1px); }
-    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-primary:active { transform: scale(0.99); }
     .btn-secondary {
-      padding: 10px 14px; border-radius: 12px;
-      background: var(--bg-hover); border: 1px solid var(--border);
-      font-weight: 600; font-size: 13px; transition: background 0.2s;
+      padding: 9px 14px; border-radius: 11px; background: var(--bg-input);
+      border: 1px solid var(--border); font-size: 13px; font-weight: 600;
       display: inline-flex; align-items: center; justify-content: center; gap: 6px;
     }
-    .btn-secondary:hover { background: var(--border); }
-    .btn-danger { background: rgba(244, 63, 94, 0.16); color: var(--rose); border: 1px solid rgba(244, 63, 94, 0.3); }
-    .tg-helper {
-      margin-top: 12px; padding: 11px 13px; border-radius: 12px;
-      background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2);
-      font-size: 12.5px; color: var(--text-secondary); line-height: 1.5;
+    .btn-secondary:hover { background: var(--bg-hover); }
+    .btn-danger { background: rgba(239, 68, 68, 0.15); color: var(--rose); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .tg-tip {
+      margin-top: 14px; padding: 12px; border-radius: 12px;
+      background: rgba(42, 171, 238, 0.08); border: 1px solid rgba(42, 171, 238, 0.22);
+      font-size: 12.5px; color: var(--text-secondary); line-height: 1.55;
     }
-    .tg-helper a { color: #38bdf8; font-weight: 700; text-decoration: none; }
+    .tg-tip a { color: var(--accent); font-weight: 700; text-decoration: none; }
 
-    /* Main Workspace Layout */
-    #app-shell {
-      display: flex; flex-direction: column; height: 100%; width: 100%;
-    }
-    .workspace {
-      flex: 1; display: grid;
-      grid-template-columns: 70px 310px 1fr 290px;
+    /* Main Telegram Layout */
+    #app { display: flex; flex-direction: column; height: 100%; width: 100%; }
+    .layout {
+      flex: 1; display: grid; grid-template-columns: 350px 1fr 310px;
       min-height: 0; position: relative;
     }
-    .workspace.right-closed { grid-template-columns: 70px 310px 1fr 0px; }
+    .layout.info-closed { grid-template-columns: 350px 1fr 0px; }
 
-    /* 1. Left Rail */
-    .rail {
-      background: var(--bg-elevated); backdrop-filter: blur(20px);
-      border-right: 1px solid var(--border);
-      display: flex; flex-direction: column; align-items: center;
-      padding: 16px 0; gap: 12px; z-index: 20;
-    }
-    .brand-btn {
-      width: 44px; height: 44px; border-radius: 14px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      color: #fff; font-weight: 800; font-size: 19px;
-      display: grid; place-items: center; box-shadow: 0 8px 20px var(--accent-glow);
-      user-select: none; margin-bottom: 8px;
-    }
-    .rail-btn {
-      width: 44px; height: 44px; border-radius: 14px;
-      display: grid; place-items: center; font-size: 19px;
-      color: var(--text-secondary); transition: all 0.2s; position: relative;
-    }
-    .rail-btn:hover, .rail-btn.active {
-      background: var(--bg-hover); color: var(--text-primary);
-    }
-    .rail-btn.active::before {
-      content: ''; position: absolute; left: -13px; width: 4px; height: 22px;
-      border-radius: 0 4px 4px 0; background: var(--accent);
-    }
-    .rail-spacer { flex: 1; }
-    .avatar {
-      width: 40px; height: 40px; border-radius: 50%;
-      display: grid; place-items: center; font-weight: 700; font-size: 15px; color: #fff;
-      flex-shrink: 0; position: relative; user-select: none;
-    }
-    .avatar .dot {
-      position: absolute; bottom: 0; right: 0; width: 11px; height: 11px;
-      border-radius: 50%; background: var(--emerald); border: 2px solid var(--bg-base);
-    }
-
-    /* 2. Sidebar (Rooms + Stories) */
+    /* Sidebar */
     .sidebar {
-      background: var(--bg-elevated); backdrop-filter: blur(20px);
-      border-right: 1px solid var(--border);
-      display: flex; flex-direction: column; min-height: 0;
+      background: var(--bg-sidebar); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; min-height: 0; position: relative;
     }
-    .sidebar-header {
-      padding: 16px; border-bottom: 1px solid var(--border);
-      display: flex; flex-direction: column; gap: 12px;
+    .sb-top {
+      padding: 10px 12px; display: flex; align-items: center; gap: 10px;
     }
-    .sidebar-top { display: flex; align-items: center; justify-content: space-between; }
-    .sidebar-top h2 { font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
-    .sync-pill {
-      font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 99px;
-      background: rgba(16, 185, 129, 0.14); color: var(--emerald);
-      border: 1px solid rgba(16, 185, 129, 0.28);
-    }
-    .sync-pill.local {
-      background: rgba(245, 158, 11, 0.14); color: var(--amber);
-      border-color: rgba(245, 158, 11, 0.28);
-    }
-    .search-box {
-      display: flex; align-items: center; gap: 8px;
-      background: var(--bg-hover); border: 1px solid var(--border);
-      border-radius: 12px; padding: 9px 12px;
-    }
-    .search-box input { width: 100%; background: transparent; border: none; font-size: 13.5px; }
-
-    /* Stories Strip */
-    .stories-bar {
-      padding: 12px 16px; border-bottom: 1px solid var(--border);
-      display: flex; gap: 11px; overflow-x: auto; scrollbar-width: none;
-    }
-    .stories-bar::-webkit-scrollbar { display: none; }
-    .story-item {
-      display: flex; flex-direction: column; align-items: center; gap: 5px;
-      cursor: pointer; flex-shrink: 0; width: 56px;
-    }
-    .story-ring {
-      width: 48px; height: 48px; border-radius: 50%; padding: 2px;
-      background: linear-gradient(135deg, var(--accent), var(--rose), var(--amber));
-      display: grid; place-items: center;
-    }
-    .story-ring.add { background: var(--border-strong); }
-    .story-inner {
-      width: 100%; height: 100%; border-radius: 50%; background: var(--bg-card);
-      display: grid; place-items: center; font-weight: 700; font-size: 15px;
-      border: 2px solid var(--bg-base);
-    }
-    .story-name { font-size: 11px; color: var(--text-secondary); max-width: 56px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-    .room-list { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 4px; }
-    .room-item {
-      display: flex; align-items: center; gap: 12px; padding: 11px 12px;
-      border-radius: 15px; cursor: pointer; transition: background 0.18s;
-      border: 1px solid transparent;
-    }
-    .room-item:hover { background: var(--bg-hover); }
-    .room-item.active {
-      background: rgba(99, 102, 241, 0.14);
-      border-color: rgba(99, 102, 241, 0.32);
-    }
-    .room-icon {
-      width: 44px; height: 44px; border-radius: 14px;
-      display: grid; place-items: center; font-size: 20px; flex-shrink: 0;
-      background: var(--bg-hover);
-    }
-    .room-meta { flex: 1; min-width: 0; }
-    .room-name { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
-    .room-preview { font-size: 12.5px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
-
-    /* PWA Install Card inside Sidebar */
-    .pwa-card {
-      margin: 10px; padding: 12px; border-radius: 15px;
-      background: linear-gradient(135deg, rgba(99,102,241,0.16), rgba(139,92,246,0.12));
-      border: 1px solid rgba(99,102,241,0.28);
-      display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    }
-    .pwa-card div { font-size: 12px; line-height: 1.35; }
-    .pwa-card strong { display: block; font-size: 13px; margin-bottom: 2px; }
-    .pwa-install-btn {
-      padding: 8px 12px; border-radius: 10px; background: var(--accent); color: #fff;
-      font-size: 12px; font-weight: 700; flex-shrink: 0;
-    }
-
-    /* 3. Center Chat Area */
-    .chat-main {
-      display: flex; flex-direction: column; min-width: 0; min-height: 0; position: relative;
-    }
-    .chat-header {
-      height: 68px; padding: 0 20px; border-bottom: 1px solid var(--border);
-      background: var(--bg-elevated); backdrop-filter: blur(20px);
-      display: flex; align-items: center; justify-content: space-between; gap: 12px;
-    }
-    .chat-header-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
-    .mobile-back { display: none; font-size: 20px; padding: 6px; }
-    .chat-title { font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
-    .chat-sub { font-size: 12px; color: var(--text-secondary); }
-    .chat-actions { display: flex; align-items: center; gap: 6px; }
     .icon-btn {
-      width: 38px; height: 38px; border-radius: 11px;
-      display: grid; place-items: center; font-size: 17px;
-      color: var(--text-secondary); transition: all 0.18s;
+      width: 38px; height: 38px; border-radius: 50%;
+      display: grid; place-items: center; font-size: 18px;
+      color: var(--text-secondary); transition: background 0.16s, color 0.16s; flex-shrink: 0;
     }
     .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
-
-    .pinned-bar {
-      padding: 8px 20px; background: rgba(99, 102, 241, 0.1);
-      border-bottom: 1px solid var(--border); font-size: 12.5px;
-      display: flex; align-items: center; gap: 10px; cursor: pointer;
+    .search-pill {
+      flex: 1; display: flex; align-items: center; gap: 8px;
+      background: var(--bg-input); border-radius: 99px; padding: 8px 14px;
+      border: 1px solid transparent;
     }
-    .pinned-bar span { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-secondary); }
+    .search-pill:focus-within { border-color: var(--accent); }
+    .search-pill input { width: 100%; background: transparent; border: none; font-size: 13.5px; }
 
-    .messages-wrap {
-      flex: 1; overflow-y: auto; padding: 20px;
-      display: flex; flex-direction: column; gap: 12px;
+    /* Folder Tabs */
+    .folder-tabs {
+      display: flex; gap: 4px; padding: 2px 12px 0; border-bottom: 1px solid var(--border);
+      overflow-x: auto; scrollbar-width: none;
     }
-    .msg-row { display: flex; gap: 10px; max-width: 78%; position: relative; }
+    .folder-tabs::-webkit-scrollbar { display: none; }
+    .folder-tab {
+      padding: 9px 11px; font-size: 13px; font-weight: 600; color: var(--text-secondary);
+      border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.15s;
+    }
+    .folder-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    /* Stories Strip */
+    .stories-strip {
+      display: flex; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--border);
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .stories-strip::-webkit-scrollbar { display: none; }
+    .story { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; width: 52px; flex-shrink: 0; }
+    .story-ring {
+      width: 46px; height: 46px; border-radius: 50%; padding: 2px;
+      background: linear-gradient(135deg, var(--accent), #a855f7, #ec4899);
+    }
+    .story-ring.add { background: var(--border-strong); }
+    .story-avatar {
+      width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--bg-sidebar);
+      display: grid; place-items: center; font-weight: 700; font-size: 15px; color: #fff; background: var(--bg-input);
+    }
+    .story span { font-size: 11px; color: var(--text-secondary); max-width: 52px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* Chat List */
+    .chat-list { flex: 1; overflow-y: auto; padding: 6px; }
+    .chat-item {
+      display: flex; align-items: center; gap: 11px; padding: 9px 10px;
+      border-radius: 12px; cursor: pointer; transition: background 0.14s;
+    }
+    .chat-item:hover { background: var(--bg-hover); }
+    .chat-item.active { background: var(--bg-active); }
+    .avatar {
+      width: 46px; height: 46px; border-radius: 50%;
+      display: grid; place-items: center; font-weight: 700; font-size: 17px; color: #fff;
+      flex-shrink: 0; position: relative; user-select: none;
+    }
+    .avatar.sm { width: 36px; height: 36px; font-size: 14px; }
+    .online-dot {
+      position: absolute; bottom: 1px; right: 1px; width: 11px; height: 11px;
+      border-radius: 50%; background: var(--emerald); border: 2px solid var(--bg-sidebar);
+    }
+    .chat-item-body { flex: 1; min-width: 0; }
+    .chat-item-top { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+    .chat-item-name {
+      font-size: 14.5px; font-weight: 600; display: flex; align-items: center; gap: 5px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .chat-item-name.secret { color: var(--emerald); }
+    .chat-item-time { font-size: 11.5px; color: var(--text-muted); flex-shrink: 0; }
+    .chat-item-bottom { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-top: 3px; }
+    .chat-item-preview { font-size: 13px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .badge {
+      min-width: 20px; height: 20px; padding: 0 6px; border-radius: 99px;
+      background: var(--accent); color: #fff; font-size: 11px; font-weight: 700;
+      display: grid; place-items: center; flex-shrink: 0;
+    }
+    .sync-tag {
+      font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 99px;
+      background: rgba(34, 197, 94, 0.15); color: var(--emerald);
+    }
+    .sync-tag.local { background: rgba(245, 158, 11, 0.15); color: var(--amber); }
+
+    /* FAB */
+    .fab {
+      position: absolute; bottom: 18px; right: 18px;
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--accent); color: #fff; font-size: 21px;
+      display: grid; place-items: center; box-shadow: 0 8px 24px var(--accent-glow);
+      transition: transform 0.16s;
+    }
+    .fab:hover { transform: scale(1.06); }
+
+    /* Center Chat */
+    .chat-panel { display: flex; flex-direction: column; min-width: 0; min-height: 0; position: relative; }
+    .chat-header {
+      height: 60px; padding: 0 14px; background: var(--bg-header);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; gap: 10px; z-index: 10;
+    }
+    .chat-head-left { display: flex; align-items: center; gap: 11px; min-width: 0; cursor: pointer; }
+    .mobile-back { display: none; }
+    .chat-head-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .chat-head-sub { font-size: 12px; color: var(--text-secondary); }
+    .chat-head-actions { display: flex; align-items: center; gap: 4px; }
+
+    .pin-strip {
+      background: var(--bg-header); border-bottom: 1px solid var(--border);
+      padding: 7px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 12.5px;
+    }
+    .pin-line { width: 2.5px; height: 26px; background: var(--accent); border-radius: 99px; }
+    .pin-strip-text { flex: 1; min-width: 0; }
+    .pin-strip-text strong { display: block; color: var(--accent); font-size: 12px; }
+    .pin-strip-text span { display: block; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .chat-search-bar {
+      background: var(--bg-header); border-bottom: 1px solid var(--border);
+      padding: 8px 16px; display: flex; align-items: center; gap: 8px;
+    }
+
+    .messages-area {
+      flex: 1; overflow-y: auto; padding: 16px 22px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .date-chip {
+      align-self: center; font-size: 12px; font-weight: 600;
+      background: rgba(0, 0, 0, 0.32); color: #fff;
+      padding: 4px 12px; border-radius: 99px; margin: 6px 0;
+    }
+    .secret-intro {
+      align-self: center; max-width: 340px; text-align: center;
+      background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.28);
+      border-radius: 16px; padding: 16px; margin: 10px 0; font-size: 12.5px; line-height: 1.55;
+    }
+    .msg-row { display: flex; gap: 8px; max-width: 74%; position: relative; align-items: flex-end; }
     .msg-row.me { align-self: flex-end; flex-direction: row-reverse; }
-    .msg-row.system { align-self: center; max-width: 90%; }
-    .system-pill {
-      font-size: 12px; color: var(--text-secondary); background: var(--bg-hover);
-      border: 1px solid var(--border); padding: 5px 12px; border-radius: 99px;
-    }
     .msg-bubble {
-      padding: 11px 14px; border-radius: 18px;
-      background: var(--bubble-other); border: 1px solid var(--border);
-      position: relative; min-width: 110px; word-break: break-word;
+      background: var(--bubble-other); border-radius: 16px 16px 16px 4px;
+      padding: 8px 12px 6px; min-width: 100px; position: relative;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18); word-break: break-word;
     }
     .msg-row.me .msg-bubble {
-      background: var(--bubble-me); border-color: transparent; color: #fff;
+      background: var(--bubble-me); border-radius: 16px 16px 4px 16px;
     }
     .msg-sender {
-      font-size: 12px; font-weight: 700; margin-bottom: 4px;
-      display: flex; align-items: center; gap: 5px; color: #a5b4fc;
+      font-size: 12.5px; font-weight: 700; color: var(--accent);
+      margin-bottom: 3px; display: flex; align-items: center; gap: 5px;
     }
-    .msg-row.me .msg-sender { color: rgba(255,255,255,0.85); }
-    .verified-badge {
+    .verified-icon {
       display: inline-grid; place-items: center; width: 15px; height: 15px;
-      border-radius: 50%; background: #38bdf8; color: #fff; font-size: 10px; font-weight: 800;
+      border-radius: 50%; background: var(--accent); color: #fff; font-size: 10px;
     }
-    .admin-tag {
-      font-size: 10px; padding: 1px 6px; border-radius: 6px;
-      background: rgba(245, 158, 11, 0.2); color: var(--amber); font-weight: 700;
+    .fwd-label { font-size: 11.5px; color: var(--accent); margin-bottom: 4px; font-style: italic; }
+    .reply-quote {
+      border-left: 3px solid var(--accent); background: rgba(0,0,0,0.16);
+      padding: 4px 8px; border-radius: 6px; margin-bottom: 5px; font-size: 12px; cursor: pointer;
     }
-    .msg-text { font-size: 14px; line-height: 1.5; }
-    .msg-text code {
-      background: rgba(0, 0, 0, 0.28); padding: 2px 6px; border-radius: 6px; font-family: monospace; font-size: 13px;
+    .msg-text { font-size: var(--msg-size); line-height: 1.48; }
+    .msg-text code { background: rgba(0,0,0,0.28); padding: 1px 5px; border-radius: 5px; font-family: monospace; font-size: 0.9em; }
+    .msg-img { max-width: 290px; max-height: 280px; border-radius: 10px; margin-top: 4px; display: block; cursor: zoom-in; object-fit: cover; }
+    .msg-file {
+      display: flex; align-items: center; gap: 10px; padding: 8px 10px; margin-top: 4px;
+      background: rgba(0,0,0,0.18); border-radius: 10px; text-decoration: none; color: inherit;
     }
-    .msg-reply-box {
-      border-left: 3px solid var(--accent); background: rgba(0,0,0,0.18);
-      padding: 6px 9px; border-radius: 8px; margin-bottom: 7px; font-size: 12px;
-      cursor: pointer;
+    .msg-audio { width: 225px; height: 34px; margin-top: 4px; }
+    .msg-meta {
+      display: flex; align-items: center; justify-content: flex-end; gap: 5px;
+      font-size: 11px; opacity: 0.68; margin-top: 4px;
     }
-    .msg-img {
-      max-width: 280px; max-height: 260px; border-radius: 12px; margin-top: 6px;
-      cursor: zoom-in; display: block; object-fit: cover;
-    }
-    .msg-audio { margin-top: 6px; width: 220px; height: 34px; }
-    .msg-footer {
-      display: flex; align-items: center; justify-content: flex-end; gap: 6px;
-      font-size: 10.5px; opacity: 0.72; margin-top: 5px;
-    }
-    .secret-timer { color: var(--amber); font-weight: 700; }
+    .ticks { color: #5ec2f7; font-weight: 700; letter-spacing: -2px; }
+    .ttl-chip { color: var(--amber); font-weight: 700; }
 
-    /* Poll inside message */
-    .poll-box { margin-top: 6px; display: flex; flex-direction: column; gap: 7px; min-width: 230px; }
-    .poll-q { font-weight: 700; font-size: 14.5px; margin-bottom: 2px; }
+    /* Poll */
+    .poll-card { min-width: 240px; margin-top: 4px; display: flex; flex-direction: column; gap: 6px; }
     .poll-opt {
-      position: relative; overflow: hidden; border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.18); padding: 9px 12px;
-      background: rgba(0,0,0,0.16); cursor: pointer; text-align: left;
-      display: flex; justify-content: space-between; align-items: center; font-size: 13px;
+      position: relative; overflow: hidden; padding: 8px 11px; border-radius: 9px;
+      border: 1px solid rgba(255,255,255,0.18); background: rgba(0,0,0,0.15);
+      display: flex; justify-content: space-between; font-size: 13px; text-align: left;
     }
-    .poll-fill {
-      position: absolute; left: 0; top: 0; bottom: 0;
-      background: rgba(99, 102, 241, 0.35); transition: width 0.35s ease; z-index: 0;
-    }
+    .poll-bar { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent-glow); transition: width 0.3s; }
     .poll-opt span { position: relative; z-index: 1; }
 
-    /* Message Hover Actions & Reactions */
-    .msg-hover-bar {
-      position: absolute; top: -16px; right: 8px;
+    /* Reactions & Quick Actions */
+    .msg-tools {
+      position: absolute; top: -18px; right: 6px;
       background: var(--bg-card); border: 1px solid var(--border-strong);
-      border-radius: 99px; padding: 3px 6px; display: flex; gap: 3px;
-      opacity: 0; pointer-events: none; transition: opacity 0.15s; box-shadow: var(--shadow-lg);
-      z-index: 5;
+      border-radius: 99px; padding: 2px 5px; display: flex; gap: 2px;
+      opacity: 0; pointer-events: none; transition: opacity 0.14s; box-shadow: var(--shadow); z-index: 5;
     }
-    .msg-row:hover .msg-hover-bar { opacity: 1; pointer-events: auto; }
-    .msg-hover-bar button { width: 26px; height: 26px; border-radius: 50%; font-size: 13px; }
-    .msg-hover-bar button:hover { background: var(--bg-hover); }
-    .reactions-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
-    .react-chip {
-      font-size: 12px; padding: 2px 8px; border-radius: 99px;
-      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.12);
-      display: inline-flex; align-items: center; gap: 4px;
+    .msg-row:hover .msg-tools { opacity: 1; pointer-events: auto; }
+    .msg-tools button { width: 26px; height: 26px; border-radius: 50%; font-size: 13px; }
+    .msg-tools button:hover { background: var(--bg-hover); }
+    .react-bar { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+    .react-pill {
+      font-size: 12px; padding: 2px 7px; border-radius: 99px;
+      background: rgba(42, 171, 238, 0.18); border: 1px solid rgba(42, 171, 238, 0.3);
+      cursor: pointer;
     }
 
     /* Composer */
-    .composer-wrap {
-      padding: 12px 18px 16px; background: var(--bg-elevated);
-      backdrop-filter: blur(20px); border-top: 1px solid var(--border);
+    .composer-area {
+      background: var(--bg-header); border-top: 1px solid var(--border);
+      padding: 8px 14px 12px; position: relative;
     }
-    .reply-banner {
+    .composer-banner {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 7px 12px; margin-bottom: 8px; border-radius: 10px;
-      background: var(--bg-hover); border-left: 3px solid var(--accent); font-size: 12.5px;
+      padding: 6px 10px; margin-bottom: 6px; border-radius: 8px;
+      background: var(--bg-input); border-left: 3px solid var(--accent); font-size: 12.5px;
     }
-    .composer {
-      display: flex; align-items: center; gap: 8px;
-      background: var(--bg-card); border: 1px solid var(--border-strong);
-      border-radius: 18px; padding: 6px 8px;
+    .composer-row { display: flex; align-items: center; gap: 6px; }
+    .composer-input-wrap {
+      flex: 1; display: flex; align-items: center; gap: 6px;
+      background: var(--bg-input); border-radius: 22px; padding: 4px 10px;
     }
-    .composer input[type="text"] {
-      flex: 1; background: transparent; border: none; font-size: 14px; padding: 8px 6px; min-width: 0;
+    .composer-input-wrap input {
+      flex: 1; background: transparent; border: none; padding: 8px 4px; font-size: 14.5px; min-width: 0;
     }
-    .send-btn {
-      width: 40px; height: 40px; border-radius: 13px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      color: #fff; display: grid; place-items: center; font-size: 17px; flex-shrink: 0;
+    .send-circle {
+      width: 42px; height: 42px; border-radius: 50%; background: var(--accent);
+      color: #fff; font-size: 18px; display: grid; place-items: center; flex-shrink: 0;
     }
-    .rec-active { background: rgba(244, 63, 94, 0.2) !important; color: var(--rose) !important; animation: pulse 1s infinite; }
+    .rec-on { background: rgba(239, 68, 68, 0.2) !important; color: var(--rose) !important; animation: pulse 1s infinite; }
     @keyframes pulse { 50% { transform: scale(1.08); } }
 
-    /* 4. Right Context Panel (Bento) */
-    .right-panel {
-      background: var(--bg-elevated); backdrop-filter: blur(20px);
-      border-left: 1px solid var(--border); overflow-y: auto;
-      padding: 16px; display: flex; flex-direction: column; gap: 14px;
-      transition: width 0.2s;
+    .emoji-popover {
+      position: absolute; bottom: 68px; left: 14px; width: 290px;
+      background: var(--bg-card); border: 1px solid var(--border-strong);
+      border-radius: 16px; padding: 10px; box-shadow: var(--shadow);
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; z-index: 30;
     }
-    .workspace.right-closed .right-panel { display: none; }
-    .bento-card {
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 16px; padding: 14px;
-    }
-    .bento-card h3 { font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 10px; }
-    .bento-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .stat-box { background: var(--bg-hover); border-radius: 12px; padding: 10px; }
-    .stat-box .num { font-size: 20px; font-weight: 800; }
-    .stat-box .lbl { font-size: 11px; color: var(--text-secondary); }
-    .media-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .media-grid img { width: 100%; height: 76px; object-fit: cover; border-radius: 10px; cursor: zoom-in; }
+    .emoji-popover button { font-size: 20px; padding: 5px; border-radius: 8px; }
+    .emoji-popover button:hover { background: var(--bg-hover); }
 
-    /* Modals */
-    .modal-backdrop {
-      position: fixed; inset: 0; z-index: 800;
-      background: rgba(4, 6, 12, 0.78); backdrop-filter: blur(14px);
-      display: flex; align-items: center; justify-content: center; padding: 16px;
+    /* Right Info Drawer */
+    .info-drawer {
+      background: var(--bg-sidebar); border-left: 1px solid var(--border);
+      overflow-y: auto; display: flex; flex-direction: column;
+    }
+    .layout.info-closed .info-drawer { display: none; }
+    .info-head {
+      height: 60px; padding: 0 16px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; font-weight: 700;
+    }
+    .info-hero { padding: 20px 16px; text-align: center; border-bottom: 1px solid var(--border); }
+    .info-hero .avatar { width: 74px; height: 74px; font-size: 30px; margin: 0 auto 10px; }
+    .info-section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+    .info-section h4 { font-size: 12px; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; letter-spacing: 0.04em; }
+    .key-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; width: 76px; height: 76px; margin: 8px auto; }
+    .key-cell { border-radius: 3px; }
+    .media-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+    .media-grid img { width: 100%; height: 76px; object-fit: cover; border-radius: 8px; cursor: zoom-in; }
+
+    /* Telegram Slide-out Navigation Drawer */
+    #nav-drawer-bg {
+      position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(4px); display: flex;
+    }
+    .nav-drawer {
+      width: 290px; max-width: 82vw; height: 100%; background: var(--bg-sidebar);
+      box-shadow: var(--shadow); display: flex; flex-direction: column;
+      animation: slideRight 0.2s ease;
+    }
+    @keyframes slideRight { from { transform: translateX(-100%); } to { transform: none; } }
+    .nav-profile {
+      padding: 22px 18px 16px; background: linear-gradient(135deg, rgba(42,171,238,0.2), rgba(99,102,241,0.14));
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-items { padding: 8px; flex: 1; overflow-y: auto; }
+    .nav-item {
+      width: 100%; padding: 11px 14px; border-radius: 11px;
+      display: flex; align-items: center; gap: 13px; font-size: 14px; font-weight: 500;
+      text-align: left; transition: background 0.14s;
+    }
+    .nav-item:hover { background: var(--bg-hover); }
+    .nav-item span.ic { font-size: 18px; width: 24px; text-align: center; }
+
+    /* Modals & Settings */
+    .modal-bg {
+      position: fixed; inset: 0; z-index: 700; background: rgba(4, 8, 16, 0.72);
+      backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; padding: 14px;
     }
     .modal {
       width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto;
-      background: var(--bg-card); border: 1px solid var(--border-strong);
-      border-radius: 22px; padding: 24px; box-shadow: var(--shadow-lg);
+      background: var(--bg-sidebar); border: 1px solid var(--border-strong);
+      border-radius: 20px; padding: 22px; box-shadow: var(--shadow);
     }
-    .modal.wide { max-width: 820px; }
-    .modal-header {
-      display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
-    }
-    .modal-header h2 { font-size: 18px; font-weight: 800; }
-    .admin-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
-    .tab-btn {
-      padding: 8px 13px; border-radius: 10px; font-size: 13px; font-weight: 600;
-      background: var(--bg-hover); color: var(--text-secondary);
-    }
-    .tab-btn.active { background: var(--accent); color: #fff; }
-    .admin-list { display: flex; flex-direction: column; gap: 8px; }
-    .admin-row {
+    .modal.wide { max-width: 780px; }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .modal-head h2 { font-size: 18px; font-weight: 800; }
+    .tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+    .tab { padding: 8px 13px; border-radius: 10px; font-size: 13px; font-weight: 600; background: var(--bg-input); color: var(--text-secondary); }
+    .tab.active { background: var(--accent); color: #fff; }
+    .row-card {
       display: flex; align-items: center; justify-content: space-between; gap: 10px;
-      padding: 11px 13px; border-radius: 13px; background: var(--bg-hover); border: 1px solid var(--border);
-      flex-wrap: wrap;
+      padding: 11px 13px; border-radius: 12px; background: var(--bg-input); margin-bottom: 8px; flex-wrap: wrap;
     }
+    .swatch-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .swatch { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+    .swatch.active { border-color: #fff; transform: scale(1.1); }
 
-    /* Maintenance Screen */
-    #maintenance-screen {
-      position: fixed; inset: 0; z-index: 700; background: var(--bg-base);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      text-align: center; padding: 24px; gap: 14px;
+    /* Context Menu */
+    #ctx-menu {
+      position: fixed; z-index: 900; min-width: 185px;
+      background: var(--bg-card); border: 1px solid var(--border-strong);
+      border-radius: 14px; padding: 6px; box-shadow: var(--shadow);
     }
+    #ctx-menu button {
+      width: 100%; padding: 9px 12px; border-radius: 9px; font-size: 13.5px;
+      display: flex; align-items: center; gap: 10px; text-align: left;
+    }
+    #ctx-menu button:hover { background: var(--bg-hover); }
 
     /* Lightbox */
     #lightbox {
-      position: fixed; inset: 0; z-index: 950; background: rgba(0,0,0,0.9);
+      position: fixed; inset: 0; z-index: 950; background: rgba(0,0,0,0.92);
       display: flex; align-items: center; justify-content: center; padding: 20px; cursor: zoom-out;
     }
-    #lightbox img { max-width: 94%; max-height: 92%; border-radius: 14px; }
+    #lightbox img { max-width: 94%; max-height: 92%; border-radius: 12px; }
 
-    /* Responsive Mobile */
-    @media (max-width: 1080px) {
-      .workspace { grid-template-columns: 64px 280px 1fr 0px; }
-      .right-panel { display: none; }
+    /* Mobile Responsive */
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 310px 1fr 0px; }
+      .info-drawer { display: none; }
     }
     @media (max-width: 768px) {
-      .workspace { grid-template-columns: 1fr; grid-template-rows: 1fr 58px; }
-      .rail {
-        grid-row: 2; flex-direction: row; justify-content: space-around;
-        padding: 0 10px; border-right: none; border-top: 1px solid var(--border);
-      }
-      .rail-spacer, .brand-btn { display: none; }
-      .rail-btn.active::before { display: none; }
-      .sidebar { grid-row: 1; width: 100%; border-right: none; }
-      .chat-main { grid-row: 1; width: 100%; display: none; }
-      .workspace.mobile-chat-open .sidebar { display: none; }
-      .workspace.mobile-chat-open .chat-main { display: flex; }
+      .layout { grid-template-columns: 1fr; }
+      .chat-panel { display: none; }
+      .layout.mobile-open .sidebar { display: none; }
+      .layout.mobile-open .chat-panel { display: flex; }
       .mobile-back { display: inline-grid; }
-      .msg-row { max-width: 90%; }
+      .msg-row { max-width: 88%; }
     }
   </style>
 </head>
 <body>
 
-<div id="toast-container"></div>
+<div id="toast-root"></div>
 
-<!-- Maintenance Overlay -->
-<div id="maintenance-screen" class="hidden">
-  <div style="font-size:48px;">🛠️</div>
-  <h2>Texnik ishlar olib borilmoqda</h2>
-  <p style="color:var(--text-secondary);max-width:380px;">Ilova hozirda administrator tomonidan yangilanmoqda. Birozdan so'ng qayta urinib ko'ring.</p>
-  <button class="btn-secondary" onclick="AdminController.openGate()">Admin kirish</button>
+<!-- Maintenance Screen -->
+<div id="maint-screen" class="full-overlay hidden">
+  <div class="auth-card" style="text-align:center;">
+    <div style="font-size:48px;margin-bottom:10px;">🛠️</div>
+    <h1>Texnik ishlar</h1>
+    <p class="sub">Suhbat hozirda administrator tomonidan yangilanmoqda. Birozdan so'ng qayta kiring.</p>
+    <button class="btn-secondary" onclick="Admin.openGate()">🛡️ Admin kirish</button>
+  </div>
 </div>
 
-<!-- Auth Screen (Telegram Bot OTP) -->
-<div id="auth-screen">
-  <div class="auth-card">
-    <div class="auth-logo" id="auth-logo-trigger" title="Suhbat">S</div>
-    <h1>Suhbat'ga xush kelibsiz</h1>
-    <p class="sub">Real vaqt rejimidagi zamonaviy messenjer. Davom etish uchun Telegram bot orqali tasdiqlashdan o'ting.</p>
+<!-- Passcode Lock Screen -->
+<div id="lock-screen" class="full-overlay hidden">
+  <div class="auth-card" style="text-align:center;">
+    <div class="tg-logo" style="margin:0 auto 14px;">🔒</div>
+    <h1>Ilova qulflangan</h1>
+    <p class="sub">Davom etish uchun 4 xonali shaxsiy PIN kodingizni kiriting.</p>
+    <div class="field">
+      <input id="unlock-pin" class="input" type="password" maxlength="4" inputmode="numeric" placeholder="••••" style="text-align:center;font-size:24px;letter-spacing:10px;" />
+    </div>
+    <button class="btn-primary" id="btn-unlock-app">Ochish</button>
+  </div>
+</div>
 
-    <div id="auth-step-1">
+<!-- Telegram Bot OTP Auth Screen -->
+<div id="auth-screen" class="full-overlay">
+  <div class="auth-card">
+    <div class="tg-logo" id="auth-logo">✈️</div>
+    <h1>Suhbat'ga xush kelibsiz</h1>
+    <p class="sub">Telegram bot orqali xavfsiz ro'yxatdan o'ting va real vaqtda muloqot qiling.</p>
+
+    <div id="auth-step1">
       <div class="field">
         <label>Ismingiz</label>
-        <input id="reg-name" class="input" type="text" placeholder="Masalan: Quvonchbek" maxlength="32" />
+        <input id="reg-name" class="input" placeholder="Masalan: Quvonchbek" maxlength="32" />
       </div>
       <div class="field">
         <label>Username</label>
-        <input id="reg-username" class="input" type="text" placeholder="@quvonchbek" maxlength="24" />
+        <input id="reg-user" class="input" placeholder="@username" maxlength="24" />
       </div>
       <div class="field">
         <label>Telegram Chat ID</label>
-        <input id="reg-tgid" class="input" type="text" placeholder="Masalan: 123456789" inputmode="numeric" />
+        <input id="reg-tgid" class="input" placeholder="Masalan: 6916090884" inputmode="numeric" />
       </div>
       <button class="btn-primary" id="btn-send-otp">✈️ Telegram orqali kod olish</button>
-      <div class="tg-helper">
-        Telegram ID ni bilmaysizmi? <a href="https://t.me/userinfobot" target="_blank" rel="noopener">@userinfobot</a> ga kirib <code>/start</code> bosing va ID raqamingizni kiriting.
-        <br /><span id="tg-bot-hint"></span>
-      </div>
+      <div class="tg-tip" id="tg-tip-box"></div>
     </div>
 
-    <div id="auth-step-2" class="hidden">
+    <div id="auth-step2" class="hidden">
       <div class="field">
-        <label>Telegramga yuborilgan 6 xonali kod</label>
-        <input id="reg-otp" class="input" type="text" placeholder="000000" maxlength="6" inputmode="numeric" style="text-align:center;font-size:20px;letter-spacing:6px;font-weight:800;" />
+        <label>Telegramga kelgan 6 xonali kod</label>
+        <input id="reg-otp" class="input" maxlength="6" inputmode="numeric" placeholder="000000" style="text-align:center;font-size:22px;letter-spacing:8px;font-weight:800;" />
       </div>
-      <button class="btn-primary" id="btn-verify-otp">✅ Tasdiqlash va kirish</button>
-      <button class="btn-secondary" style="width:100%;margin-top:10px;" id="btn-back-step1">← Orqaga</button>
+      <button class="btn-primary" id="btn-verify-otp">✅ Tasdiqlash</button>
+      <button class="btn-secondary" style="width:100%;margin-top:8px;" id="btn-auth-back">← Orqaga</button>
     </div>
   </div>
 </div>
 
-<!-- Main Application -->
-<div id="app-shell">
-  <div id="broadcast-banner" class="hidden">
+<!-- Main App -->
+<div id="app">
+  <div id="broadcast-bar" class="hidden">
     <span>📢</span>
-    <span id="broadcast-text"></span>
-    <button onclick="document.getElementById('broadcast-banner').classList.add('hidden')">✕</button>
+    <span id="broadcast-msg"></span>
+    <button onclick="document.getElementById('broadcast-bar').classList.add('hidden')">✕</button>
   </div>
 
-  <div class="workspace" id="workspace">
-    <!-- 1. Left Rail -->
-    <nav class="rail">
-      <button class="brand-btn" id="brand-logo" title="Suhbat">S</button>
-      <button class="rail-btn active" data-nav="chats" title="Suhbatlar">💬</button>
-      <button class="rail-btn" id="btn-new-room" title="Yangi xona">➕</button>
-      <button class="rail-btn" id="btn-theme" title="Tungi/Kunduzgi mavzu">🌓</button>
-      <button class="rail-btn" id="btn-pwa-rail" title="Ilovani o'rnatish">📲</button>
-      <div class="rail-spacer"></div>
-      <button class="rail-btn hidden" id="btn-admin-shortcut" title="Admin Panel">🛡️</button>
-      <button id="btn-profile" title="Profil">
-        <div class="avatar" id="my-avatar" style="background:var(--accent);">?<span class="dot"></span></div>
-      </button>
-    </nav>
-
-    <!-- 2. Sidebar -->
+  <div class="layout" id="layout">
+    <!-- Left Sidebar -->
     <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="sidebar-top">
-          <h2>Suhbat <span id="sync-badge" class="sync-pill local">Lokal</span></h2>
-          <button class="icon-btn" id="btn-add-story" title="Status qo'shish">✨</button>
+      <div class="sb-top">
+        <button class="icon-btn" id="btn-menu" title="Menyu">☰</button>
+        <div class="search-pill">
+          <span style="opacity:.6">🔍</span>
+          <input id="sb-search" type="text" placeholder="Qidirish..." />
         </div>
-        <div class="search-box">
-          <span>🔍</span>
-          <input id="room-search" type="text" placeholder="Xona qidirish..." />
-        </div>
+        <span id="sync-tag" class="sync-tag local">Lokal</span>
       </div>
 
-      <!-- 24h Stories / Statuses -->
-      <div class="stories-bar" id="stories-bar"></div>
-
-      <!-- Room List -->
-      <div class="room-list" id="room-list"></div>
-
-      <!-- PWA Install Banner -->
-      <div class="pwa-card" id="pwa-banner">
-        <div>
-          <strong>📱 Mobil ilova (PWA)</strong>
-          <span>Bosh ekranga o'rnatib ishlating</span>
-        </div>
-        <button class="pwa-install-btn" id="btn-install-pwa">O'rnatish</button>
+      <div class="folder-tabs" id="folder-tabs">
+        <button class="folder-tab active" data-folder="all">Barchasi</button>
+        <button class="folder-tab" data-folder="personal">Shaxsiy</button>
+        <button class="folder-tab" data-folder="group">Guruhlar</button>
+        <button class="folder-tab" data-folder="secret">Maxfiy 🔒</button>
       </div>
+
+      <div class="stories-strip" id="stories-strip"></div>
+      <div class="chat-list" id="chat-list"></div>
+
+      <button class="fab" id="btn-fab" title="Yangi suhbat / guruh / maxfiy chat">✏️</button>
     </aside>
 
-    <!-- 3. Center Chat -->
-    <main class="chat-main">
+    <!-- Center Chat -->
+    <main class="chat-panel">
       <header class="chat-header">
-        <div class="chat-header-left">
-          <button class="mobile-back" id="btn-mobile-back">←</button>
-          <div class="room-icon" id="active-room-icon">💬</div>
-          <div style="min-width:0;">
-            <div class="chat-title" id="active-room-name">Umumiy Chat</div>
-            <div class="chat-sub" id="active-room-sub">Real vaqtda sinxronizatsiya</div>
+        <div class="chat-head-left" id="chat-head-info">
+          <button class="icon-btn mobile-back" id="btn-mobile-back">←</button>
+          <div class="avatar sm" id="head-avatar" style="background:var(--accent)">🌐</div>
+          <div style="min-width:0">
+            <div class="chat-head-title" id="head-title">Umumiy Chat</div>
+            <div class="chat-head-sub" id="head-sub">Real-time suhbat</div>
           </div>
         </div>
-        <div class="chat-actions">
-          <button class="icon-btn" id="btn-poll-modal" title="So'rovnoma yaratish">📊</button>
-          <button class="icon-btn" id="btn-toggle-right" title="Ma'lumot paneli">ℹ️</button>
+        <div class="chat-head-actions">
+          <button class="icon-btn" id="btn-inchat-search" title="Xabar qidirish">🔍</button>
+          <button class="icon-btn hidden" id="btn-secret-timer" title="O'z-o'zini o'chirish taymeri">⏱️</button>
+          <button class="icon-btn" id="btn-poll" title="So'rovnoma">📊</button>
+          <button class="icon-btn" id="btn-info-toggle" title="Chat ma'lumoti">ℹ️</button>
         </div>
       </header>
 
-      <div class="pinned-bar hidden" id="pinned-bar">
-        <span>📌</span>
-        <span id="pinned-text"></span>
+      <div class="chat-search-bar hidden" id="inchat-search-bar">
+        <input id="inchat-search-input" class="input" placeholder="Ushbu chatdan qidirish..." style="padding:7px 12px;" />
+        <button class="icon-btn" id="btn-close-inchat-search">✕</button>
       </div>
 
-      <div class="messages-wrap" id="messages-wrap"></div>
-
-      <div class="composer-wrap">
-        <div class="reply-banner hidden" id="reply-banner">
-          <span id="reply-banner-text"></span>
-          <button onclick="AppUI.clearReply()">✕</button>
+      <div class="pin-strip hidden" id="pin-strip">
+        <div class="pin-line"></div>
+        <div class="pin-strip-text">
+          <strong>📌 Qadalgan xabar</strong>
+          <span id="pin-strip-val"></span>
         </div>
-        <div class="composer">
-          <input type="file" id="file-input" accept="image/*" class="hidden" />
-          <button class="icon-btn" id="btn-attach" title="Rasm yuborish">🖼️</button>
+      </div>
+
+      <div class="messages-area wp-pattern" id="messages-area"></div>
+
+      <div class="composer-area">
+        <div class="emoji-popover hidden" id="emoji-popover"></div>
+        <div class="composer-banner hidden" id="composer-banner">
+          <span id="composer-banner-text"></span>
+          <button onclick="UI.clearComposerState()">✕</button>
+        </div>
+        <div class="composer-row">
+          <input type="file" id="img-input" accept="image/*" class="hidden" />
+          <input type="file" id="file-input" class="hidden" />
+          <button class="icon-btn" id="btn-emoji" title="Emoji">😊</button>
+          <div class="composer-input-wrap">
+            <input id="msg-input" type="text" placeholder="Xabar yozing..." autocomplete="off" />
+            <button class="icon-btn" id="btn-img" title="Rasm">🖼️</button>
+            <button class="icon-btn" id="btn-file" title="Fayl">📎</button>
+          </div>
           <button class="icon-btn" id="btn-voice" title="Ovozli xabar">🎙️</button>
-          <input id="msg-input" type="text" placeholder="Xabar yozing... (**qalin**, `kod`)" autocomplete="off" />
-          <button class="send-btn" id="btn-send" title="Yuborish">➤</button>
+          <button class="send-circle" id="btn-send" title="Yuborish">➤</button>
         </div>
       </div>
     </main>
 
-    <!-- 4. Right Context Panel -->
-    <aside class="right-panel" id="right-panel">
-      <div class="bento-card">
-        <h3>Xona statistikasi</h3>
-        <div class="bento-stats">
-          <div class="stat-box"><div class="num" id="stat-msgs">0</div><div class="lbl">Xabarlar</div></div>
-          <div class="stat-box"><div class="num" id="stat-users">1</div><div class="lbl">Foydalanuvchi</div></div>
-        </div>
+    <!-- Right Info Drawer -->
+    <aside class="info-drawer" id="info-drawer">
+      <div class="info-head">
+        <span>Chat ma'lumoti</span>
+        <button class="icon-btn" onclick="document.getElementById('layout').classList.add('info-closed')">✕</button>
       </div>
-      <div class="bento-card">
-        <h3>Media galereya</h3>
-        <div class="media-grid" id="media-grid">
-          <div style="font-size:12px;color:var(--text-muted);grid-column:span 2;">Hozircha rasmlar yo'q</div>
-        </div>
-      </div>
-      <div class="bento-card">
-        <h3>Tezkor buyruqlar</h3>
-        <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;">
-          <code>/vaqt</code> — Joriy vaqt<br />
-          <code>/yordam</code> — Yordamchi bot<br />
-          <code>**matn**</code> — Qalin yozuv<br />
-          <code>`kod`</code> — Kod bloki
-        </div>
-      </div>
+      <div id="info-drawer-body"></div>
     </aside>
   </div>
 </div>
 
-<!-- Lightbox -->
-<div id="lightbox" class="hidden" onclick="this.classList.add('hidden')">
-  <img id="lightbox-img" src="" alt="Preview" />
+<!-- Telegram Slide-out Menu -->
+<div id="nav-drawer-bg" class="hidden">
+  <div class="nav-drawer">
+    <div class="nav-profile" id="nav-profile-box"></div>
+    <div class="nav-items">
+      <button class="nav-item" id="nav-saved"><span class="ic">🔖</span> Saqlangan xabarlar</button>
+      <button class="nav-item" id="nav-new-group"><span class="ic">👥</span> Yangi guruh</button>
+      <button class="nav-item" id="nav-new-secret"><span class="ic">🔒</span> Yangi maxfiy chat</button>
+      <button class="nav-item" id="nav-settings"><span class="ic">⚙️</span> Sozlamalar</button>
+      <button class="nav-item" id="nav-theme"><span class="ic">🌙</span> Tungi / Kunduzgi rejim</button>
+      <button class="nav-item" id="nav-pwa"><span class="ic">📲</span> Ilovani o'rnatish (PWA)</button>
+      <button class="nav-item hidden" id="nav-admin"><span class="ic">🛡️</span> Admin Panel</button>
+    </div>
+  </div>
 </div>
 
-<!-- Dynamic Modal Container -->
-<div id="modal-root" class="modal-backdrop hidden"></div>
+<!-- Context Menu -->
+<div id="ctx-menu" class="hidden"></div>
+
+<!-- Lightbox & Modal -->
+<div id="lightbox" class="hidden" onclick="this.classList.add('hidden')"><img id="lightbox-img" src="" alt="" /></div>
+<div id="modal-root" class="modal-bg hidden"></div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getDatabase, ref, push, set, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
   /* =========================================================
-     1. TIZIM KONFIGURATSIYASI (GitHub Pages uchun shu yerni to'ldiring)
+     1. KONFIGURATSIYA (GitHub Pages uchun)
      ========================================================= */
   const DEFAULT_CONFIG = {
-    // Firebase Realtime Database sozlamalari (https://console.firebase.google.com)
     firebase: {
       apiKey: "",
       authDomain: "",
-      databaseURL: "", // Masalan: "https://sizning-loyiha-default-rtdb.firebaseio.com"
+      databaseURL: "", // Masalan: "https://loyiha-default-rtdb.firebaseio.com"
       projectId: "",
       appId: ""
     },
-    // Telegram Bot sozlamalari (@BotFather orqali olinadi)
     telegram: {
-      botUsername: "TeligramUz_Bot",
-      botToken: "1860961269:AAFNJDOmB071fLlgdhYEZljXo_oKNTrEe8c", // Real OTP yuborish uchun token yoki Cloudflare Worker URL
-      workerUrl: "" // Tavsiya etiladi: tokenni yashirish uchun Cloudflare Worker manzili
+      botUsername: "TeligramUz_Bot", // @ belgisiz yoziladi
+      botToken: "1860961269:AAFNJDOmB071fLlgdhYEZljXo_oKNTrEe8c",
+      workerUrl: ""
     },
-    // Yashirin Admin Panel uchun SHA-256 PIN xeshi (Standart PIN: 2026)
-    adminPinHash: "9d6b34a9145a553d5646f4e456e35c852e8123a46736723c0c8887f818661f9d",
+    adminPinHash: "9d6b34a9145a553d5646f4e456e35c852e8123a46736723c0c8887f818661f9d", // Standart PIN: 2026
     secretRoute: "#/admin-panel"
   };
 
-  function loadRuntimeConfig() {
+  function getRuntimeConfig() {
     try {
       const saved = JSON.parse(localStorage.getItem("suhbat_runtime_cfg") || "null");
       if (saved) {
@@ -725,49 +733,101 @@
     return DEFAULT_CONFIG;
   }
 
-  let APP_CONFIG = loadRuntimeConfig();
+  let CONFIG = getRuntimeConfig();
 
   /* =========================================================
-     2. XAVFSIZLIK VA YORDAMCHI MODULLAR
+     2. XAVFSIZLIK VA AES-GCM MAXFIY SHIFRLASH
      ========================================================= */
-  const Security = {
-    escape(str = "") {
-      return String(str).replace(/[&<>"']/g, m => ({
-        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-      }[m]));
+  const CryptoEngine = {
+    escape(s = "") {
+      return String(s).replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
     },
-    formatMarkdown(str = "") {
-      let s = this.escape(str);
-      s = s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-      s = s.replace(/\*(.+?)\*/g, "<em>$1</em>");
-      s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
-      return s;
+    md(s = "") {
+      let t = this.escape(s);
+      t = t.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+      t = t.replace(/\*(.+?)\*/g, "<em>$1</em>");
+      t = t.replace(/`([^`]+)`/g, "<code>$1</code>");
+      return t;
     },
-    async sha256(text) {
-      const data = new TextEncoder().encode(text);
-      const hash = await crypto.subtle.digest("SHA-256", data);
-      return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, "0")).join("");
+    async sha256(str) {
+      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
     },
-    randomColor(seed = "") {
-      const colors = ["#6366f1", "#8b5cf6", "#ec4899", "#10b981", "#f59e0b", "#0ea5e9", "#f43f5e"];
-      let sum = 0;
-      for (let i = 0; i < seed.length; i++) sum += seed.charCodeAt(i);
-      return colors[sum % colors.length];
+    async deriveKey(secretSeed) {
+      const raw = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("SUHBAT_E2E_" + secretSeed));
+      return crypto.subtle.importKey("raw", raw, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
+    },
+    async encrypt(plainText, roomSeed) {
+      try {
+        const key = await this.deriveKey(roomSeed);
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const enc = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(plainText));
+        const combined = new Uint8Array(iv.length + enc.byteLength);
+        combined.set(iv, 0);
+        combined.set(new Uint8Array(enc), iv.length);
+        return "E2E:" + btoa(String.fromCharCode(...combined));
+      } catch { return plainText; }
+    },
+    async decrypt(cipherText, roomSeed) {
+      if (!cipherText || !cipherText.startsWith("E2E:")) return cipherText;
+      try {
+        const key = await this.deriveKey(roomSeed);
+        const bytes = Uint8Array.from(atob(cipherText.slice(4)), c => c.charCodeAt(0));
+        const iv = bytes.slice(0, 12);
+        const data = bytes.slice(12);
+        const dec = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, data);
+        return new TextDecoder().decode(dec);
+      } catch { return "🔒 [Shifrlangan xabar]"; }
+    },
+    colorFor(seed = "") {
+      const palette = ["#2aabee", "#6366f1", "#10b981", "#ec4899", "#f59e0b", "#8b5cf6", "#0ea5e9"];
+      let sum = 0; for (let i = 0; i < seed.length; i++) sum += seed.charCodeAt(i);
+      return palette[sum % palette.length];
     }
   };
 
-  const SoundFX = {
-    ctx: null,
-    play(freq = 640, duration = 0.08) {
+  /* =========================================================
+     3. SOZLAMALAR (SETTINGS) VA OVOZ
+     ========================================================= */
+  const Prefs = {
+    data: {
+      theme: "telegram-dark",
+      accent: "#2aabee",
+      wallpaper: "wp-pattern",
+      fontSize: 14.5,
+      sound: true,
+      desktopNotif: false,
+      readReceipts: true,
+      showLastSeen: true,
+      passcode: ""
+    },
+    load() {
+      try { Object.assign(this.data, JSON.parse(localStorage.getItem("suhbat_prefs") || "{}")); } catch {}
+      this.apply();
+    },
+    save(patch) {
+      Object.assign(this.data, patch);
+      localStorage.setItem("suhbat_prefs", JSON.stringify(this.data));
+      this.apply();
+    },
+    apply() {
+      document.documentElement.setAttribute("data-theme", this.data.theme);
+      document.documentElement.style.setProperty("--accent", this.data.accent);
+      document.documentElement.style.setProperty("--msg-size", this.data.fontSize + "px");
+      const area = document.getElementById("messages-area");
+      if (area) {
+        area.classList.remove("wp-pattern", "wp-aurora", "wp-clean");
+        area.classList.add(this.data.wallpaper);
+      }
+    },
+    beep(freq = 720) {
+      if (!this.data.sound) return;
       try {
-        this.ctx = this.ctx || new (window.AudioContext || window.webkitAudioContext)();
-        const o = this.ctx.createOscillator();
-        const g = this.ctx.createGain();
-        o.type = "sine"; o.frequency.value = freq;
-        g.gain.setValueAtTime(0.06, this.ctx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
-        o.connect(g); g.connect(this.ctx.destination);
-        o.start(); o.stop(this.ctx.currentTime + duration);
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.frequency.value = freq; g.gain.setValueAtTime(0.05, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+        o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + 0.08);
       } catch {}
     }
   };
@@ -776,112 +836,84 @@
     const el = document.createElement("div");
     el.className = `toast ${type}`;
     el.textContent = msg;
-    document.getElementById("toast-container").appendChild(el);
-    setTimeout(() => el.remove(), 4200);
+    document.getElementById("toast-root").appendChild(el);
+    setTimeout(() => el.remove(), 4000);
   }
 
   /* =========================================================
-     3. REAL-TIME MA'LUMOTLAR BAZASI (Firebase + Lokal Fallback)
+     4. REAL-TIME BAZA (Firebase + Lokal Sinxronizatsiya)
      ========================================================= */
   const DEFAULT_ROOMS = {
-    umumiy: { id: "umumiy", name: "Umumiy Chat", icon: "🌐", desc: "Barcha foydalanuvchilar uchun ochiq xona", secret: false },
-    dasturchilar: { id: "dasturchilar", name: "Dasturchilar Klubi", icon: "💻", desc: "Kod, loyihalar va texnologiya", secret: false },
-    maxfiy: { id: "maxfiy", name: "Maxfiy Suhbat", icon: "🔒", desc: "Xabarlar 30 soniyada o'chadi", secret: true, ttl: 30 },
-    bot: { id: "bot", name: "Yordamchi Bot", icon: "🤖", desc: "/yordam, /vaqt buyruqlari", secret: false, isBot: true }
+    saved: { id: "saved", name: "Saqlangan xabarlar", icon: "🔖", type: "personal", desc: "Shaxsiy bulutli eslatmalar", pinned: true },
+    umumiy: { id: "umumiy", name: "Umumiy Chat", icon: "🌐", type: "group", desc: "Barcha foydalanuvchilar guruhi", pinned: true },
+    dasturchilar: { id: "dasturchilar", name: "Dasturchilar Klubi", icon: "💻", type: "group", desc: "Frontend, Backend va AI muhokamalari" },
+    maxfiy_1: { id: "maxfiy_1", name: "Maxfiy Suhbat", icon: "🔒", type: "secret", secret: true, ttl: 30, seed: "key_9941_uz", desc: "AES-GCM E2E shifrlangan maxfiy chat" },
+    bot: { id: "bot", name: "Suhbat Yordamchi", icon: "🤖", type: "personal", isBot: true, desc: "Aqlli yordamchi bot (/yordam)" }
   };
 
-  const RealtimeDB = {
+  const DB = {
     mode: "local",
-    db: null,
-    bc: new BroadcastChannel("suhbat_realtime_channel"),
-    state: {
-      rooms: { ...DEFAULT_ROOMS },
-      messages: {},
-      users: {},
-      stories: {},
-      system: { broadcast: "", maintenance: false }
-    },
-    listeners: [],
+    fb: null,
+    bc: new BroadcastChannel("suhbat_v3_sync"),
+    state: { rooms: { ...DEFAULT_ROOMS }, messages: {}, users: {}, stories: {}, system: { broadcast: "", maintenance: false } },
+    subs: [],
 
     init() {
-      const badge = document.getElementById("sync-badge");
-      if (APP_CONFIG.firebase && APP_CONFIG.firebase.databaseURL) {
+      const tag = document.getElementById("sync-tag");
+      if (CONFIG.firebase?.databaseURL) {
         try {
-          const app = initializeApp(APP_CONFIG.firebase);
-          this.db = getDatabase(app);
+          const app = initializeApp(CONFIG.firebase);
+          this.fb = getDatabase(app);
           this.mode = "firebase";
-          badge.textContent = "Real-Time";
-          badge.classList.remove("local");
-          this.bindFirebase();
+          tag.textContent = "Real-Time";
+          tag.classList.remove("local");
+          this.bindFB();
           return;
-        } catch (err) {
-          console.error("Firebase init error:", err);
-          toast("Firebase ulanishida xatolik, lokal rejim yoqildi.", "error");
-        }
+        } catch (e) { console.error(e); }
       }
-      // Local + BroadcastChannel real-time fallback
       this.mode = "local";
-      badge.textContent = "Lokal Demo";
-      badge.classList.add("local");
+      tag.textContent = "Lokal";
+      tag.classList.add("local");
       this.loadLocal();
       this.bc.onmessage = () => { this.loadLocal(); this.emit(); };
       window.addEventListener("storage", () => { this.loadLocal(); this.emit(); });
       this.emit();
     },
 
-    bindFirebase() {
-      onValue(ref(this.db, "rooms"), snap => {
-        const val = snap.val();
-        if (!val) { set(ref(this.db, "rooms"), DEFAULT_ROOMS); }
-        else { this.state.rooms = val; this.emit(); }
+    bindFB() {
+      onValue(ref(this.fb, "rooms"), s => {
+        const v = s.val();
+        if (!v) set(ref(this.fb, "rooms"), DEFAULT_ROOMS);
+        else { this.state.rooms = { ...DEFAULT_ROOMS, ...v }; this.emit(); }
       });
-      onValue(ref(this.db, "messages"), snap => {
-        this.state.messages = snap.val() || {};
-        this.emit();
-      });
-      onValue(ref(this.db, "users"), snap => {
-        this.state.users = snap.val() || {};
-        this.emit();
-      });
-      onValue(ref(this.db, "stories"), snap => {
-        this.state.stories = snap.val() || {};
-        this.emit();
-      });
-      onValue(ref(this.db, "system"), snap => {
-        this.state.system = snap.val() || { broadcast: "", maintenance: false };
-        this.emit();
-      });
+      onValue(ref(this.fb, "messages"), s => { this.state.messages = s.val() || {}; this.emit(); });
+      onValue(ref(this.fb, "users"), s => { this.state.users = s.val() || {}; this.emit(); });
+      onValue(ref(this.fb, "stories"), s => { this.state.stories = s.val() || {}; this.emit(); });
+      onValue(ref(this.fb, "system"), s => { this.state.system = s.val() || { broadcast: "", maintenance: false }; this.emit(); });
     },
 
     loadLocal() {
       try {
-        const raw = JSON.parse(localStorage.getItem("suhbat_local_db") || "null");
+        const raw = JSON.parse(localStorage.getItem("suhbat_v3_db") || "null");
         if (raw) this.state = { ...this.state, ...raw, rooms: { ...DEFAULT_ROOMS, ...(raw.rooms || {}) } };
       } catch {}
     },
-
     saveLocal() {
-      localStorage.setItem("suhbat_local_db", JSON.stringify(this.state));
+      localStorage.setItem("suhbat_v3_db", JSON.stringify(this.state));
       this.bc.postMessage("sync");
       this.emit();
     },
+    subscribe(fn) { this.subs.push(fn); },
+    emit() { this.subs.forEach(fn => fn(this.state)); },
 
-    subscribe(fn) { this.listeners.push(fn); },
-    emit() { this.listeners.forEach(fn => fn(this.state)); },
-
-    async saveUser(user) {
-      if (this.mode === "firebase") {
-        await update(ref(this.db, `users/${user.id}`), user);
-      } else {
-        this.state.users[user.id] = { ...(this.state.users[user.id] || {}), ...user };
-        this.saveLocal();
-      }
+    async saveUser(u) {
+      if (this.mode === "firebase") await update(ref(this.fb, `users/${u.id}`), u);
+      else { this.state.users[u.id] = { ...(this.state.users[u.id] || {}), ...u }; this.saveLocal(); }
     },
-
-    async pushMessage(roomId, msg) {
+    async pushMsg(roomId, msg) {
       if (this.mode === "firebase") {
-        const newRef = push(ref(this.db, `messages/${roomId}`));
-        await set(newRef, { ...msg, id: newRef.key });
+        const r = push(ref(this.fb, `messages/${roomId}`));
+        await set(r, { ...msg, id: r.key });
       } else {
         const id = "m_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6);
         this.state.messages[roomId] = this.state.messages[roomId] || {};
@@ -889,486 +921,385 @@
         this.saveLocal();
       }
     },
-
-    async updateMessage(roomId, msgId, patch) {
-      if (this.mode === "firebase") {
-        await update(ref(this.db, `messages/${roomId}/${msgId}`), patch);
-      } else if (this.state.messages[roomId]?.[msgId]) {
-        Object.assign(this.state.messages[roomId][msgId], patch);
-        this.saveLocal();
-      }
+    async patchMsg(roomId, msgId, patch) {
+      if (this.mode === "firebase") await update(ref(this.fb, `messages/${roomId}/${msgId}`), patch);
+      else if (this.state.messages[roomId]?.[msgId]) { Object.assign(this.state.messages[roomId][msgId], patch); this.saveLocal(); }
     },
-
-    async deleteMessage(roomId, msgId) {
-      if (this.mode === "firebase") {
-        await remove(ref(this.db, `messages/${roomId}/${msgId}`));
-      } else if (this.state.messages[roomId]) {
-        delete this.state.messages[roomId][msgId];
-        this.saveLocal();
-      }
+    async delMsg(roomId, msgId) {
+      if (this.mode === "firebase") await remove(ref(this.fb, `messages/${roomId}/${msgId}`));
+      else if (this.state.messages[roomId]) { delete this.state.messages[roomId][msgId]; this.saveLocal(); }
     },
-
-    async createRoom(room) {
-      if (this.mode === "firebase") {
-        await set(ref(this.db, `rooms/${room.id}`), room);
-      } else {
-        this.state.rooms[room.id] = room;
-        this.saveLocal();
-      }
+    async saveRoom(room) {
+      if (this.mode === "firebase") await set(ref(this.fb, `rooms/${room.id}`), room);
+      else { this.state.rooms[room.id] = room; this.saveLocal(); }
     },
-
     async clearRoom(roomId) {
-      if (this.mode === "firebase") {
-        await remove(ref(this.db, `messages/${roomId}`));
-      } else {
-        this.state.messages[roomId] = {};
-        this.saveLocal();
-      }
+      if (this.mode === "firebase") await remove(ref(this.fb, `messages/${roomId}`));
+      else { this.state.messages[roomId] = {}; this.saveLocal(); }
     },
-
-    async deleteRoom(roomId) {
-      if (this.mode === "firebase") {
-        await remove(ref(this.db, `rooms/${roomId}`));
-        await remove(ref(this.db, `messages/${roomId}`));
-      } else {
-        delete this.state.rooms[roomId];
-        delete this.state.messages[roomId];
-        this.saveLocal();
-      }
+    async delRoom(roomId) {
+      if (this.mode === "firebase") { await remove(ref(this.fb, `rooms/${roomId}`)); await remove(ref(this.fb, `messages/${roomId}`)); }
+      else { delete this.state.rooms[roomId]; delete this.state.messages[roomId]; this.saveLocal(); }
     },
-
-    async addStory(story) {
-      if (this.mode === "firebase") {
-        const newRef = push(ref(this.db, "stories"));
-        await set(newRef, { ...story, id: newRef.key });
-      } else {
-        const id = "st_" + Date.now();
-        this.state.stories[id] = { ...story, id };
-        this.saveLocal();
-      }
+    async addStory(st) {
+      if (this.mode === "firebase") { const r = push(ref(this.fb, "stories")); await set(r, { ...st, id: r.key }); }
+      else { const id = "s_" + Date.now(); this.state.stories[id] = { ...st, id }; this.saveLocal(); }
     },
-
-    async updateSystem(patch) {
-      if (this.mode === "firebase") {
-        await update(ref(this.db, "system"), patch);
-      } else {
-        this.state.system = { ...this.state.system, ...patch };
-        this.saveLocal();
-      }
+    async patchSystem(p) {
+      if (this.mode === "firebase") await update(ref(this.fb, "system"), p);
+      else { this.state.system = { ...this.state.system, ...p }; this.saveLocal(); }
     }
   };
 
   /* =========================================================
-     4. TELEGRAM BOT ORQALI RO'YXATDAN O'TISH (OTP)
+     5. TELEGRAM BOT OTP AUTH
      ========================================================= */
-  const TelegramAuth = {
+  const Auth = {
+    user: null,
     pending: null,
-    currentUser: null,
 
     init() {
-      const hint = document.getElementById("tg-bot-hint");
-      if (APP_CONFIG.telegram.botToken || APP_CONFIG.telegram.workerUrl) {
-        hint.innerHTML = `Tasdiqlash boti: <a href="https://t.me/${Security.escape(APP_CONFIG.telegram.botUsername)}" target="_blank">@${Security.escape(APP_CONFIG.telegram.botUsername)}</a> (avval /start bosing).`;
+      const cleanBot = (CONFIG.telegram.botUsername || "TeligramUz_Bot").replace(/^@+/, "");
+      const tip = document.getElementById("tg-tip-box");
+      if (CONFIG.telegram.botToken || CONFIG.telegram.workerUrl) {
+        tip.innerHTML = `
+          1. Avval <a href="https://t.me/${CryptoEngine.escape(cleanBot)}" target="_blank">@${CryptoEngine.escape(cleanBot)}</a> botiga kirib <strong>/start</strong> bosing.<br/>
+          2. Telegram ID ni bilmasangiz: <a href="https://t.me/userinfobot" target="_blank">@userinfobot</a> dan oling.
+        `;
       } else {
-        hint.textContent = "Bot token hali ulanmagan: sinov kodi ekranda ko'rsatiladi.";
+        tip.innerHTML = `
+          Telegram ID ni <a href="https://t.me/userinfobot" target="_blank">@userinfobot</a> orqali oling.<br/>
+          <span style="opacity:.8">Bot token hali ulanmagan — sinov kodi ekranda chiqadi.</span>
+        `;
       }
 
       const saved = JSON.parse(localStorage.getItem("suhbat_user") || "null");
       if (saved) {
-        this.currentUser = saved;
+        this.user = saved;
         document.getElementById("auth-screen").classList.add("hidden");
-        RealtimeDB.saveUser({ ...saved, lastSeen: Date.now() });
+        DB.saveUser({ ...saved, lastSeen: Date.now() });
+        if (Prefs.data.passcode) this.showLock();
       }
 
-      document.getElementById("btn-send-otp").onclick = () => this.requestOTP();
+      document.getElementById("btn-send-otp").onclick = () => this.sendOTP();
       document.getElementById("btn-verify-otp").onclick = () => this.verifyOTP();
-      document.getElementById("btn-back-step1").onclick = () => {
-        document.getElementById("auth-step-2").classList.add("hidden");
-        document.getElementById("auth-step-1").classList.remove("hidden");
+      document.getElementById("btn-auth-back").onclick = () => {
+        document.getElementById("auth-step2").classList.add("hidden");
+        document.getElementById("auth-step1").classList.remove("hidden");
+      };
+      document.getElementById("btn-unlock-app").onclick = () => {
+        const val = document.getElementById("unlock-pin").value.trim();
+        if (val === Prefs.data.passcode) {
+          document.getElementById("lock-screen").classList.add("hidden");
+          document.getElementById("unlock-pin").value = "";
+        } else toast("PIN kod noto'g'ri!", "error");
       };
     },
 
-    async requestOTP() {
-      const name = document.getElementById("reg-name").value.trim();
-      const username = document.getElementById("reg-username").value.trim().replace(/^@/, "");
-      const tgId = document.getElementById("reg-tgid").value.trim();
+    showLock() {
+      document.getElementById("lock-screen").classList.remove("hidden");
+    },
 
+    async sendOTP() {
+      const name = document.getElementById("reg-name").value.trim();
+      const username = document.getElementById("reg-user").value.trim().replace(/^@+/, "");
+      const tgId = document.getElementById("reg-tgid").value.trim();
       if (!name || !username || !/^\d{5,15}$/.test(tgId)) {
-        toast("Ism, username va to'g'ri Telegram ID (raqam) kiriting!", "error");
-        return;
+        toast("Ism, username va to'g'ri Telegram ID kiriting!", "error"); return;
       }
 
       const code = String(Math.floor(100000 + Math.random() * 900000));
-      this.pending = { name, username, tgId, code, expires: Date.now() + 5 * 60 * 1000 };
-
+      this.pending = { name, username, tgId, code, exp: Date.now() + 300000 };
       const btn = document.getElementById("btn-send-otp");
       btn.disabled = true; btn.textContent = "Yuborilmoqda...";
 
       try {
-        if (APP_CONFIG.telegram.workerUrl) {
-          const res = await fetch(APP_CONFIG.telegram.workerUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+        if (CONFIG.telegram.workerUrl) {
+          const r = await fetch(CONFIG.telegram.workerUrl, {
+            method: "POST", headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ chat_id: tgId, code, name })
           });
-          if (!res.ok) throw new Error("Worker xatosi");
-          toast("Tasdiqlash kodi Telegram botingizga yuborildi!", "success");
-        } else if (APP_CONFIG.telegram.botToken) {
-          const text = `🔐 Suhbat tasdiqlash kodingiz: ${code}\n\nSalom, ${name}! Kod 5 daqiqa amal qiladi.`;
-          const res = await fetch(`https://api.telegram.org/bot${APP_CONFIG.telegram.botToken}/sendMessage`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ chat_id: tgId, text })
+          if (!r.ok) throw new Error("Worker xatosi");
+          toast("Kod Telegram botingizga yuborildi!", "success");
+        } else if (CONFIG.telegram.botToken) {
+          const r = await fetch(`https://api.telegram.org/bot${CONFIG.telegram.botToken}/sendMessage`, {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ chat_id: tgId, text: `🔐 Suhbat tasdiqlash kodi: ${code}\nSalom, ${name}! Kod 5 daqiqa amal qiladi.` })
           });
-          const data = await res.json();
-          if (!data.ok) throw new Error(data.description || "Botga avval /start bosing");
-          toast("Kod Telegramingizga yuborildi!", "success");
+          const data = await r.json();
+          if (!data.ok) throw new Error(data.description.includes("chat not found") ? "Avval botga kirib /start bosing!" : data.description);
+          toast("Tasdiqlash kodi Telegramga yuborildi!", "success");
         } else {
-          // Demo mode when bot token is not yet configured
-          toast(`✈️ [Demo Telegram Bot] Sizning kodingiz: ${code}`, "info");
+          toast(`✈️ [Demo Bot] Tasdiqlash kodi: ${code}`, "info");
         }
-
-        document.getElementById("auth-step-1").classList.add("hidden");
-        document.getElementById("auth-step-2").classList.remove("hidden");
+        document.getElementById("auth-step1").classList.add("hidden");
+        document.getElementById("auth-step2").classList.remove("hidden");
         document.getElementById("reg-otp").focus();
-      } catch (err) {
-        toast(`Telegram xatosi: ${err.message}`, "error");
+      } catch (e) {
+        toast("Telegram xatosi: " + e.message, "error");
       } finally {
         btn.disabled = false; btn.textContent = "✈️ Telegram orqali kod olish";
       }
     },
 
     async verifyOTP() {
-      const input = document.getElementById("reg-otp").value.trim();
-      if (!this.pending || Date.now() > this.pending.expires) {
-        toast("Kod muddati tugagan. Qayta urining.", "error"); return;
-      }
-      if (input !== this.pending.code) {
-        toast("Kod noto'g'ri!", "error"); return;
-      }
+      const val = document.getElementById("reg-otp").value.trim();
+      if (!this.pending || Date.now() > this.pending.exp) { toast("Kod muddati tugagan!", "error"); return; }
+      if (val !== this.pending.code) { toast("Kod noto'g'ri!", "error"); return; }
 
       const user = {
         id: "tg_" + this.pending.tgId,
         tgId: this.pending.tgId,
         name: this.pending.name,
         username: "@" + this.pending.username,
-        color: Security.randomColor(this.pending.name),
-        verified: false,
-        banned: false,
-        isAdmin: false,
-        joinedAt: Date.now(),
-        lastSeen: Date.now()
+        bio: "Suhbat foydalanuvchisi",
+        color: CryptoEngine.colorFor(this.pending.name),
+        verified: false, banned: false,
+        joinedAt: Date.now(), lastSeen: Date.now()
       };
-
-      this.currentUser = user;
+      this.user = user;
       localStorage.setItem("suhbat_user", JSON.stringify(user));
-      await RealtimeDB.saveUser(user);
+      await DB.saveUser(user);
       document.getElementById("auth-screen").classList.add("hidden");
       toast(`Xush kelibsiz, ${user.name}!`, "success");
-      AppUI.renderAll();
+      UI.renderAll();
     }
   };
 
   /* =========================================================
-     5. PWA (MOBIL QURILMAGA O'RNATISH)
+     6. PWA O'RNATISH
      ========================================================= */
   const PWA = {
-    deferredPrompt: null,
+    promptEvent: null,
     init() {
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("./sw.js").catch(() => {});
-      }
-      window.addEventListener("beforeinstallprompt", e => {
-        e.preventDefault();
-        this.deferredPrompt = e;
-        document.getElementById("pwa-banner").classList.remove("hidden");
-      });
-      window.addEventListener("appinstalled", () => {
-        this.deferredPrompt = null;
-        document.getElementById("pwa-banner").classList.add("hidden");
-        toast("Suhbat ilovasi qurilmangizga o'rnatildi!", "success");
-      });
-
-      const installHandler = () => this.triggerInstall();
-      document.getElementById("btn-install-pwa").onclick = installHandler;
-      document.getElementById("btn-pwa-rail").onclick = installHandler;
+      if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(() => {});
+      window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); this.promptEvent = e; });
+      window.addEventListener("appinstalled", () => { this.promptEvent = null; toast("Ilova o'rnatildi!", "success"); });
     },
-
-    async triggerInstall() {
-      if (this.deferredPrompt) {
-        this.deferredPrompt.prompt();
-        const { outcome } = await this.deferredPrompt.userChoice;
-        if (outcome === "accepted") this.deferredPrompt = null;
+    async install() {
+      if (this.promptEvent) {
+        this.promptEvent.prompt();
+        await this.promptEvent.userChoice;
+        this.promptEvent = null;
         return;
       }
-      // iOS / Manual guide modal
-      AppUI.openModal(`
-        <div class="modal-header">
-          <h2>📲 Ilovani telefonga o'rnatish</h2>
-          <button class="icon-btn" onclick="AppUI.closeModal()">✕</button>
-        </div>
-        <div style="font-size:14px;line-height:1.65;color:var(--text-secondary);">
-          <p style="margin-bottom:10px;"><strong>Android (Chrome):</strong> Brauzer menyusini (⋮) oching va <strong>"Ilovani o'rnatish"</strong> yoki <strong>"Bosh ekranga qo'shish"</strong> tugmasini bosing.</p>
-          <p><strong>iPhone / iPad (Safari):</strong> Pastdagi <strong>Ulashish (Share ⬆️)</strong> tugmasini bosing va <strong>"Bosh ekranga qo'shish" (Add to Home Screen)</strong> ni tanlang.</p>
-        </div>
+      UI.openModal(`
+        <div class="modal-head"><h2>📲 Ilovani telefonga o'rnatish</h2><button class="icon-btn" onclick="UI.closeModal()">✕</button></div>
+        <p style="font-size:14px;line-height:1.65;color:var(--text-secondary);">
+          <strong>Android (Chrome):</strong> Yuqori o'ng burchakdagi menyu (⋮) → <strong>"Ilovani o'rnatish"</strong>.<br/><br/>
+          <strong>iPhone (Safari):</strong> Pastdagi <strong>Ulashish (⬆️)</strong> tugmasi → <strong>"Bosh ekranga qo'shish"</strong>.
+        </p>
       `);
     }
   };
 
   /* =========================================================
-     6. YASHIRIN ADMIN PANEL (Maxsus yo'l: #/admin-panel yoki 5x logo)
+     7. YASHIRIN ADMIN PANEL
      ========================================================= */
-  const AdminController = {
-    isUnlocked: sessionStorage.getItem("suhbat_admin_ok") === "1",
-    logoTaps: 0,
-    tapTimer: null,
+  const Admin = {
+    unlocked: sessionStorage.getItem("suhbat_admin") === "1",
+    taps: 0, tapTimer: null,
 
     init() {
-      const checkHash = () => {
-        if (location.hash === APP_CONFIG.secretRoute) this.openGate();
-      };
-      window.addEventListener("hashchange", checkHash);
-      checkHash();
-
-      const handleLogoTap = () => {
-        this.logoTaps++;
-        clearTimeout(this.tapTimer);
-        this.tapTimer = setTimeout(() => { this.logoTaps = 0; }, 1200);
-        if (this.logoTaps >= 5) {
-          this.logoTaps = 0;
-          this.openGate();
-        }
-      };
-      document.getElementById("brand-logo").onclick = handleLogoTap;
-      document.getElementById("auth-logo-trigger").onclick = handleLogoTap;
-      document.getElementById("btn-admin-shortcut").onclick = () => this.openDashboard();
-
-      if (this.isUnlocked) document.getElementById("btn-admin-shortcut").classList.remove("hidden");
+      const check = () => { if (location.hash === CONFIG.secretRoute) this.openGate(); };
+      window.addEventListener("hashchange", check); check();
+      document.getElementById("auth-logo").onclick = () => this.tapLogo();
+      if (this.unlocked) document.getElementById("nav-admin").classList.remove("hidden");
     },
-
+    tapLogo() {
+      this.taps++; clearTimeout(this.tapTimer);
+      this.tapTimer = setTimeout(() => this.taps = 0, 1200);
+      if (this.taps >= 5) { this.taps = 0; this.openGate(); }
+    },
     openGate() {
-      if (this.isUnlocked) { this.openDashboard(); return; }
-      AppUI.openModal(`
-        <div class="modal-header">
-          <h2>🛡️ Maxfiy Admin Kirish</h2>
-          <button class="icon-btn" onclick="AppUI.closeModal()">✕</button>
-        </div>
-        <div class="field">
-          <label>Admin PIN kodi (Standart: 2026)</label>
-          <input id="admin-pin-input" class="input" type="password" placeholder="PIN kiriting..." />
-        </div>
-        <button class="btn-primary" id="btn-admin-unlock">Kirish</button>
+      if (this.unlocked) { this.openPanel(); return; }
+      UI.openModal(`
+        <div class="modal-head"><h2>🛡️ Admin Kirish</h2><button class="icon-btn" onclick="UI.closeModal()">✕</button></div>
+        <div class="field"><label>Admin PIN (Standart: 2026)</label><input id="adm-pin" class="input" type="password" placeholder="PIN..." /></div>
+        <button class="btn-primary" id="adm-go">Kirish</button>
       `);
-      document.getElementById("btn-admin-unlock").onclick = async () => {
-        const pin = document.getElementById("admin-pin-input").value.trim();
-        const hash = await Security.sha256(pin);
-        if (hash === APP_CONFIG.adminPinHash || pin === "2026") {
-          this.isUnlocked = true;
-          sessionStorage.setItem("suhbat_admin_ok", "1");
-          document.getElementById("btn-admin-shortcut").classList.remove("hidden");
-          toast("Admin panel ochildi!", "success");
-          this.openDashboard();
-        } else {
-          toast("PIN noto'g'ri!", "error");
-        }
+      document.getElementById("adm-go").onclick = async () => {
+        const pin = document.getElementById("adm-pin").value.trim();
+        if (await CryptoEngine.sha256(pin) === CONFIG.adminPinHash || pin === "2026") {
+          this.unlocked = true; sessionStorage.setItem("suhbat_admin", "1");
+          document.getElementById("nav-admin").classList.remove("hidden");
+          this.openPanel();
+        } else toast("PIN noto'g'ri!", "error");
       };
     },
-
-    openDashboard(activeTab = "overview") {
-      const st = RealtimeDB.state;
+    openPanel(tab = "overview") {
+      const st = DB.state;
       const users = Object.values(st.users || {});
       const rooms = Object.values(st.rooms || {});
-      const totalMsgs = Object.values(st.messages || {}).reduce((acc, r) => acc + Object.keys(r || {}).length, 0);
+      const msgCount = Object.values(st.messages || {}).reduce((a, r) => a + Object.keys(r || {}).length, 0);
 
-      let tabBody = "";
-      if (activeTab === "overview") {
-        tabBody = `
-          <div class="bento-stats" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px;">
-            <div class="stat-box"><div class="num">${users.length}</div><div class="lbl">Foydalanuvchilar</div></div>
-            <div class="stat-box"><div class="num">${totalMsgs}</div><div class="lbl">Jami xabarlar</div></div>
-            <div class="stat-box"><div class="num">${rooms.length}</div><div class="lbl">Faol xonalar</div></div>
+      let body = "";
+      if (tab === "overview") {
+        body = `
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;">
+            <div class="row-card" style="flex-direction:column;align-items:flex-start"><strong style="font-size:20px">${users.length}</strong><span style="font-size:12px;color:var(--text-secondary)">Foydalanuvchi</span></div>
+            <div class="row-card" style="flex-direction:column;align-items:flex-start"><strong style="font-size:20px">${msgCount}</strong><span style="font-size:12px;color:var(--text-secondary)">Xabarlar</span></div>
+            <div class="row-card" style="flex-direction:column;align-items:flex-start"><strong style="font-size:20px">${rooms.length}</strong><span style="font-size:12px;color:var(--text-secondary)">Xonalar</span></div>
           </div>
           <div class="field">
-            <label>📢 Global E'lon (Barcha foydalanuvchilarga ko'rinadi)</label>
+            <label>📢 Global E'lon</label>
             <div style="display:flex;gap:8px;">
-              <input id="adm-broadcast" class="input" value="${Security.escape(st.system?.broadcast || "")}" placeholder="E'lon matnini yozing..." />
-              <button class="btn-primary" style="width:auto;padding:0 18px;" id="adm-save-broadcast">Yuborish</button>
+              <input id="adm-bc" class="input" value="${CryptoEngine.escape(st.system?.broadcast || "")}" placeholder="Barcha foydalanuvchilarga e'lon..." />
+              <button class="btn-primary" style="width:auto" id="adm-bc-save">Yuborish</button>
             </div>
           </div>
-          <div class="admin-row">
-            <div>
-              <strong>🛠️ Texnik ishlar rejimi</strong>
-              <div style="font-size:12px;color:var(--text-secondary);">Yoqilsa, oddiy foydalanuvchilar chatga kira olmaydi</div>
-            </div>
-            <button class="btn-secondary ${st.system?.maintenance ? "btn-danger" : ""}" id="adm-toggle-maint">
-              ${st.system?.maintenance ? "O'chirish" : "Yoqish"}
-            </button>
+          <div class="row-card">
+            <div><strong>🛠️ Texnik ishlar rejimi</strong><div style="font-size:12px;color:var(--text-secondary)">Ilovani vaqtincha yopish</div></div>
+            <button class="btn-secondary ${st.system?.maintenance ? "btn-danger" : ""}" id="adm-maint">${st.system?.maintenance ? "O'chirish" : "Yoqish"}</button>
           </div>
         `;
-      } else if (activeTab === "users") {
-        tabBody = `<div class="admin-list">${users.length ? users.map(u => `
-          <div class="admin-row">
-            <div>
-              <strong>${Security.escape(u.name)} ${u.verified ? "☑️" : ""}</strong>
-              <div style="font-size:12px;color:var(--text-secondary);">${Security.escape(u.username)} • TG: ${Security.escape(u.tgId || "-")} ${u.banned ? "• 🚫 BAN" : ""}</div>
-            </div>
+      } else if (tab === "users") {
+        body = users.map(u => `
+          <div class="row-card">
+            <div><strong>${CryptoEngine.escape(u.name)} ${u.verified ? "☑️" : ""}</strong><div style="font-size:12px;color:var(--text-secondary)">${CryptoEngine.escape(u.username)} • ID: ${u.tgId || "-"} ${u.banned ? "• 🚫 BAN" : ""}</div></div>
             <div style="display:flex;gap:6px;">
-              <button class="btn-secondary" data-verify="${u.id}">${u.verified ? "Unverify" : "✓ Verify"}</button>
+              <button class="btn-secondary" data-ver="${u.id}">${u.verified ? "Unverify" : "✓ Verify"}</button>
               <button class="btn-secondary btn-danger" data-ban="${u.id}">${u.banned ? "Unban" : "Ban"}</button>
             </div>
           </div>
-        `).join("") : "<p style='color:var(--text-secondary);font-size:13px;'>Foydalanuvchilar topilmadi.</p>"}</div>`;
-      } else if (activeTab === "rooms") {
-        tabBody = `<div class="admin-list">${rooms.map(r => `
-          <div class="admin-row">
-            <div><strong>${r.icon || "💬"} ${Security.escape(r.name)}</strong><div style="font-size:12px;color:var(--text-secondary);">ID: ${r.id}</div></div>
+        `).join("") || `<p style="color:var(--text-secondary)">Foydalanuvchilar yo'q.</p>`;
+      } else if (tab === "rooms") {
+        body = rooms.map(r => `
+          <div class="row-card">
+            <div><strong>${r.icon || "💬"} ${CryptoEngine.escape(r.name)}</strong><div style="font-size:12px;color:var(--text-secondary)">${r.type || "group"} • ${r.id}</div></div>
             <div style="display:flex;gap:6px;">
-              <button class="btn-secondary" data-clear-room="${r.id}">🧹 Tozalash</button>
-              ${r.id !== "umumiy" ? `<button class="btn-secondary btn-danger" data-del-room="${r.id}">🗑️ O'chirish</button>` : ""}
+              <button class="btn-secondary" data-clr="${r.id}">🧹 Tozalash</button>
+              ${!["saved","umumiy"].includes(r.id) ? `<button class="btn-secondary btn-danger" data-del="${r.id}">🗑️</button>` : ""}
             </div>
           </div>
-        `).join("")}</div>`;
-      } else if (activeTab === "config") {
-        tabBody = `
-          <div class="field">
-            <label>Firebase Database URL (Real-time ishlashi uchun)</label>
-            <input id="cfg-fb-url" class="input" value="${Security.escape(APP_CONFIG.firebase.databaseURL || "")}" placeholder="https://loyiha-default-rtdb.firebaseio.com" />
-          </div>
-          <div class="field">
-            <label>Firebase API Key</label>
-            <input id="cfg-fb-key" class="input" value="${Security.escape(APP_CONFIG.firebase.apiKey || "")}" placeholder="AIzaSy..." />
-          </div>
-          <div class="field">
-            <label>Telegram Bot Token (yoki Cloudflare Worker URL)</label>
-            <input id="cfg-tg-token" class="input" value="${Security.escape(APP_CONFIG.telegram.botToken || "")}" placeholder="123456:ABC-DEF..." />
-          </div>
-          <div class="field">
-            <label>Telegram Bot Username</label>
-            <input id="cfg-tg-user" class="input" value="${Security.escape(APP_CONFIG.telegram.botUsername || "")}" placeholder="SuhbatAuthBot" />
-          </div>
-          <button class="btn-primary" id="cfg-save-btn">💾 Saqlash va qayta yuklash</button>
+        `).join("");
+      } else if (tab === "config") {
+        body = `
+          <div class="field"><label>Firebase Database URL</label><input id="c-fburl" class="input" value="${CryptoEngine.escape(CONFIG.firebase.databaseURL || "")}" placeholder="https://...-default-rtdb.firebaseio.com" /></div>
+          <div class="field"><label>Firebase API Key</label><input id="c-fbkey" class="input" value="${CryptoEngine.escape(CONFIG.firebase.apiKey || "")}" /></div>
+          <div class="field"><label>Telegram Bot Token</label><input id="c-tgtok" class="input" value="${CryptoEngine.escape(CONFIG.telegram.botToken || "")}" /></div>
+          <div class="field"><label>Telegram Bot Username (@ siz)</label><input id="c-tgusr" class="input" value="${CryptoEngine.escape((CONFIG.telegram.botUsername || "").replace(/^@+/, ""))}" /></div>
+          <button class="btn-primary" id="c-save">💾 Saqlash va qayta yuklash</button>
         `;
       }
 
-      AppUI.openModal(`
-        <div class="modal-header">
-          <h2>🛡️ Suhbat Admin Panel</h2>
-          <button class="icon-btn" onclick="AppUI.closeModal()">✕</button>
+      UI.openModal(`
+        <div class="modal-head"><h2>🛡️ Suhbat Admin Panel</h2><button class="icon-btn" onclick="UI.closeModal()">✕</button></div>
+        <div class="tabs">
+          <button class="tab ${tab==="overview"?"active":""}" data-at="overview">Umumiy</button>
+          <button class="tab ${tab==="users"?"active":""}" data-at="users">Foydalanuvchilar</button>
+          <button class="tab ${tab==="rooms"?"active":""}" data-at="rooms">Xonalar</button>
+          <button class="tab ${tab==="config"?"active":""}" data-at="config">Firebase & Bot</button>
         </div>
-        <div class="admin-tabs">
-          <button class="tab-btn ${activeTab === "overview" ? "active" : ""}" data-tab="overview">Umumiy</button>
-          <button class="tab-btn ${activeTab === "users" ? "active" : ""}" data-tab="users">Foydalanuvchilar</button>
-          <button class="tab-btn ${activeTab === "rooms" ? "active" : ""}" data-tab="rooms">Xonalar</button>
-          <button class="tab-btn ${activeTab === "config" ? "active" : ""}" data-tab="config">Tizim (Firebase/TG)</button>
-        </div>
-        ${tabBody}
+        ${body}
       `, true);
 
-      document.querySelectorAll(".tab-btn").forEach(b => {
-        b.onclick = () => this.openDashboard(b.dataset.tab);
-      });
-
-      if (activeTab === "overview") {
-        document.getElementById("adm-save-broadcast").onclick = async () => {
-          const text = document.getElementById("adm-broadcast").value.trim();
-          await RealtimeDB.updateSystem({ broadcast: text });
-          toast("Global e'lon yangilandi!", "success");
-        };
-        document.getElementById("adm-toggle-maint").onclick = async () => {
-          await RealtimeDB.updateSystem({ maintenance: !st.system?.maintenance });
-          this.openDashboard("overview");
-        };
-      } else if (activeTab === "users") {
-        document.querySelectorAll("[data-verify]").forEach(btn => {
-          btn.onclick = async () => {
-            const u = st.users[btn.dataset.verify];
-            await RealtimeDB.saveUser({ ...u, verified: !u.verified });
-            this.openDashboard("users");
-          };
-        });
-        document.querySelectorAll("[data-ban]").forEach(btn => {
-          btn.onclick = async () => {
-            const u = st.users[btn.dataset.ban];
-            await RealtimeDB.saveUser({ ...u, banned: !u.banned });
-            this.openDashboard("users");
-          };
-        });
-      } else if (activeTab === "rooms") {
-        document.querySelectorAll("[data-clear-room]").forEach(btn => {
-          btn.onclick = async () => {
-            await RealtimeDB.clearRoom(btn.dataset.clearRoom);
-            toast("Xona tozalandi!", "info");
-          };
-        });
-        document.querySelectorAll("[data-del-room]").forEach(btn => {
-          btn.onclick = async () => {
-            await RealtimeDB.deleteRoom(btn.dataset.delRoom);
-            this.openDashboard("rooms");
-          };
-        });
-      } else if (activeTab === "config") {
-        document.getElementById("cfg-save-btn").onclick = () => {
-          const next = {
-            firebase: {
-              databaseURL: document.getElementById("cfg-fb-url").value.trim(),
-              apiKey: document.getElementById("cfg-fb-key").value.trim()
-            },
-            telegram: {
-              botToken: document.getElementById("cfg-tg-token").value.trim(),
-              botUsername: document.getElementById("cfg-tg-user").value.trim()
-            }
-          };
-          localStorage.setItem("suhbat_runtime_cfg", JSON.stringify(next));
-          toast("Sozlamalar saqlandi! Sahifa yangilanmoqda...", "success");
-          setTimeout(() => location.reload(), 800);
+      document.querySelectorAll("[data-at]").forEach(b => b.onclick = () => this.openPanel(b.dataset.at));
+      if (tab === "overview") {
+        document.getElementById("adm-bc-save").onclick = async () => { await DB.patchSystem({ broadcast: document.getElementById("adm-bc").value.trim() }); toast("E'lon saqlandi!", "success"); };
+        document.getElementById("adm-maint").onclick = async () => { await DB.patchSystem({ maintenance: !st.system?.maintenance }); this.openPanel("overview"); };
+      } else if (tab === "users") {
+        document.querySelectorAll("[data-ver]").forEach(b => b.onclick = async () => { const u = st.users[b.dataset.ver]; await DB.saveUser({ ...u, verified: !u.verified }); this.openPanel("users"); });
+        document.querySelectorAll("[data-ban]").forEach(b => b.onclick = async () => { const u = st.users[b.dataset.ban]; await DB.saveUser({ ...u, banned: !u.banned }); this.openPanel("users"); });
+      } else if (tab === "rooms") {
+        document.querySelectorAll("[data-clr]").forEach(b => b.onclick = async () => { await DB.clearRoom(b.dataset.clr); toast("Tozalandi!", "info"); });
+        document.querySelectorAll("[data-del]").forEach(b => b.onclick = async () => { await DB.delRoom(b.dataset.del); this.openPanel("rooms"); });
+      } else if (tab === "config") {
+        document.getElementById("c-save").onclick = () => {
+          localStorage.setItem("suhbat_runtime_cfg", JSON.stringify({
+            firebase: { databaseURL: document.getElementById("c-fburl").value.trim(), apiKey: document.getElementById("c-fbkey").value.trim() },
+            telegram: { botToken: document.getElementById("c-tgtok").value.trim(), botUsername: document.getElementById("c-tgusr").value.trim().replace(/^@+/, "") }
+          }));
+          toast("Saqlandi! Qayta yuklanmoqda...", "success");
+          setTimeout(() => location.reload(), 700);
         };
       }
     }
   };
 
   /* =========================================================
-     7. ASOSIY UI VA CHAT BOSHQARUVI
+     8. ASOSIY TELEGRAM UI CONTROLLER
      ========================================================= */
-  const AppUI = {
+  const EMOJIS = ["😀","😂","😍","🔥","👍","❤️","🎉","😎","🤔","🙏","👏","🚀","💯","🔒","⚡","✅","💎","🤖","🎯","📌","💬"];
+
+  const UI = {
     activeRoom: "umumiy",
+    folder: "all",
+    inChatQuery: "",
     replyTo: null,
-    mediaRecorder: null,
-    audioChunks: [],
-    isRecording: false,
+    editMsgId: null,
+    recorder: null,
+    chunks: [],
+    isRec: false,
 
     init() {
-      document.getElementById("btn-theme").onclick = () => {
-        const cur = document.documentElement.getAttribute("data-theme");
-        const next = cur === "dark" ? "light" : "dark";
-        document.documentElement.setAttribute("data-theme", next);
-        localStorage.setItem("suhbat_theme", next);
-      };
-      const savedTheme = localStorage.getItem("suhbat_theme");
-      if (savedTheme) document.documentElement.setAttribute("data-theme", savedTheme);
+      // Folder tabs
+      document.querySelectorAll(".folder-tab").forEach(t => {
+        t.onclick = () => {
+          document.querySelectorAll(".folder-tab").forEach(x => x.classList.remove("active"));
+          t.classList.add("active");
+          this.folder = t.dataset.folder;
+          this.renderChatList();
+        };
+      });
 
-      document.getElementById("btn-toggle-right").onclick = () => {
-        document.getElementById("workspace").classList.toggle("right-closed");
-      };
-      document.getElementById("btn-mobile-back").onclick = () => {
-        document.getElementById("workspace").classList.remove("mobile-chat-open");
-      };
-      document.getElementById("room-search").oninput = () => this.renderRooms();
+      document.getElementById("sb-search").oninput = () => this.renderChatList();
+      document.getElementById("btn-mobile-back").onclick = () => document.getElementById("layout").classList.remove("mobile-open");
+      document.getElementById("btn-info-toggle").onclick = () => document.getElementById("layout").classList.toggle("info-closed");
+      document.getElementById("chat-head-info").onclick = () => document.getElementById("layout").classList.toggle("info-closed");
 
-      document.getElementById("btn-send").onclick = () => this.sendTextMessage();
-      document.getElementById("msg-input").onkeydown = e => {
-        if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); this.sendTextMessage(); }
+      // In-chat search
+      document.getElementById("btn-inchat-search").onclick = () => {
+        document.getElementById("inchat-search-bar").classList.toggle("hidden");
+        document.getElementById("inchat-search-input").focus();
       };
+      document.getElementById("btn-close-inchat-search").onclick = () => {
+        this.inChatQuery = ""; document.getElementById("inchat-search-input").value = "";
+        document.getElementById("inchat-search-bar").classList.add("hidden");
+        this.renderMessages();
+      };
+      document.getElementById("inchat-search-input").oninput = e => { this.inChatQuery = e.target.value.trim().toLowerCase(); this.renderMessages(); };
 
-      document.getElementById("btn-attach").onclick = () => document.getElementById("file-input").click();
-      document.getElementById("file-input").onchange = e => this.handleImageUpload(e.target.files[0]);
-      document.getElementById("btn-voice").onclick = () => this.toggleVoiceRecord();
-      document.getElementById("btn-new-room").onclick = () => this.openNewRoomModal();
-      document.getElementById("btn-poll-modal").onclick = () => this.openPollModal();
-      document.getElementById("btn-add-story").onclick = () => this.openStoryModal();
-      document.getElementById("btn-profile").onclick = () => this.openProfileModal();
+      // Slide-out menu
+      const drawerBg = document.getElementById("nav-drawer-bg");
+      document.getElementById("btn-menu").onclick = () => { this.renderNavProfile(); drawerBg.classList.remove("hidden"); };
+      drawerBg.onclick = e => { if (e.target === drawerBg) drawerBg.classList.add("hidden"); };
+      document.getElementById("nav-saved").onclick = () => { this.selectRoom("saved"); drawerBg.classList.add("hidden"); };
+      document.getElementById("nav-new-group").onclick = () => { drawerBg.classList.add("hidden"); this.openNewRoomModal("group"); };
+      document.getElementById("nav-new-secret").onclick = () => { drawerBg.classList.add("hidden"); this.openNewRoomModal("secret"); };
+      document.getElementById("nav-settings").onclick = () => { drawerBg.classList.add("hidden"); this.openSettings(); };
+      document.getElementById("nav-theme").onclick = () => {
+        const next = Prefs.data.theme === "light" ? "telegram-dark" : "light";
+        Prefs.save({ theme: next });
+      };
+      document.getElementById("nav-pwa").onclick = () => { drawerBg.classList.add("hidden"); PWA.install(); };
+      document.getElementById("nav-admin").onclick = () => { drawerBg.classList.add("hidden"); Admin.openPanel(); };
 
-      // Secret chat self-destruct cleaner
-      setInterval(() => this.cleanExpiredMessages(), 2000);
+      // FAB & Header tools
+      document.getElementById("btn-fab").onclick = () => this.openNewRoomModal("group");
+      document.getElementById("btn-poll").onclick = () => this.openPollModal();
+      document.getElementById("btn-secret-timer").onclick = () => this.openSecretTimerModal();
+
+      // Composer
+      const ep = document.getElementById("emoji-popover");
+      ep.innerHTML = EMOJIS.map(e => `<button type="button">${e}</button>`).join("");
+      ep.querySelectorAll("button").forEach(b => b.onclick = () => {
+        const inp = document.getElementById("msg-input");
+        inp.value += b.textContent; inp.focus();
+      });
+      document.getElementById("btn-emoji").onclick = e => { e.stopPropagation(); ep.classList.toggle("hidden"); };
+      document.addEventListener("click", () => { ep.classList.add("hidden"); document.getElementById("ctx-menu").classList.add("hidden"); });
+
+      document.getElementById("btn-send").onclick = () => this.sendMessage();
+      document.getElementById("msg-input").onkeydown = e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); this.sendMessage(); } };
+      document.getElementById("btn-img").onclick = () => document.getElementById("img-input").click();
+      document.getElementById("img-input").onchange = e => this.uploadImage(e.target.files[0]);
+      document.getElementById("btn-file").onclick = () => document.getElementById("file-input").click();
+      document.getElementById("file-input").onchange = e => this.uploadFile(e.target.files[0]);
+      document.getElementById("btn-voice").onclick = () => this.toggleVoice();
+
+      // Secret self-destruct timer loop
+      setInterval(() => this.cleanExpired(), 1500);
     },
 
     openModal(html, wide = false) {
@@ -1377,499 +1308,674 @@
       root.classList.remove("hidden");
       root.onclick = e => { if (e.target === root) this.closeModal(); };
     },
-    closeModal() {
-      document.getElementById("modal-root").classList.add("hidden");
+    closeModal() { document.getElementById("modal-root").classList.add("hidden"); },
+
+    renderNavProfile() {
+      const u = Auth.user;
+      if (!u) return;
+      document.getElementById("nav-profile-box").innerHTML = `
+        <div class="avatar" id="drawer-logo-tap" style="background:${u.color};margin-bottom:10px;cursor:pointer">${CryptoEngine.escape(u.name[0].toUpperCase())}</div>
+        <div style="font-weight:700;font-size:15.5px">${CryptoEngine.escape(u.name)}</div>
+        <div style="font-size:12.5px;color:var(--text-secondary)">${CryptoEngine.escape(u.username)} • ID: ${u.tgId}</div>
+      `;
+      document.getElementById("drawer-logo-tap").onclick = () => Admin.tapLogo();
     },
 
     renderAll() {
-      const st = RealtimeDB.state;
-      const user = TelegramAuth.currentUser;
-
-      // Maintenance check
-      const maint = document.getElementById("maintenance-screen");
-      if (st.system?.maintenance && !AdminController.isUnlocked) maint.classList.remove("hidden");
-      else maint.classList.add("hidden");
-
-      // Broadcast banner
-      const banner = document.getElementById("broadcast-banner");
-      if (st.system?.broadcast) {
-        document.getElementById("broadcast-text").textContent = st.system.broadcast;
-        banner.classList.remove("hidden");
-      } else {
-        banner.classList.add("hidden");
-      }
-
-      // User avatar
-      if (user) {
-        const av = document.getElementById("my-avatar");
-        av.style.background = user.color || "var(--accent)";
-        av.innerHTML = `${Security.escape(user.name[0].toUpperCase())}<span class="dot"></span>`;
-      }
+      const st = DB.state;
+      document.getElementById("maint-screen").classList.toggle("hidden", !(st.system?.maintenance && !Admin.unlocked));
+      const bc = document.getElementById("broadcast-bar");
+      if (st.system?.broadcast) { document.getElementById("broadcast-msg").textContent = st.system.broadcast; bc.classList.remove("hidden"); }
+      else bc.classList.add("hidden");
 
       this.renderStories();
-      this.renderRooms();
+      this.renderChatList();
       this.renderMessages();
     },
 
     renderStories() {
-      const bar = document.getElementById("stories-bar");
+      const strip = document.getElementById("stories-strip");
       const now = Date.now();
-      const stories = Object.values(RealtimeDB.state.stories || {})
-        .filter(s => now - s.ts < 24 * 60 * 60 * 1000)
-        .sort((a, b) => b.ts - a.ts);
-
-      bar.innerHTML = `
-        <div class="story-item" id="story-add-chip">
-          <div class="story-ring add"><div class="story-inner">➕</div></div>
-          <span class="story-name">Statusim</span>
+      const list = Object.values(DB.state.stories || {}).filter(s => now - s.ts < 86400000).sort((a,b) => b.ts - a.ts);
+      strip.innerHTML = `
+        <div class="story" id="add-story-btn">
+          <div class="story-ring add"><div class="story-avatar">➕</div></div>
+          <span>Status</span>
         </div>
-        ${stories.map(s => `
-          <div class="story-item" data-story="${s.id}">
-            <div class="story-ring"><div class="story-inner" style="background:${s.color || "var(--accent)"};color:#fff;">${Security.escape((s.author || "?")[0].toUpperCase())}</div></div>
-            <span class="story-name">${Security.escape(s.author)}</span>
+        ${list.map(s => `
+          <div class="story" data-sid="${s.id}">
+            <div class="story-ring"><div class="story-avatar" style="background:${s.color || "var(--accent)"}">${CryptoEngine.escape((s.author||"?")[0].toUpperCase())}</div></div>
+            <span>${CryptoEngine.escape(s.author)}</span>
           </div>
         `).join("")}
       `;
-
-      document.getElementById("story-add-chip").onclick = () => this.openStoryModal();
-      bar.querySelectorAll("[data-story]").forEach(el => {
-        el.onclick = () => {
-          const s = RealtimeDB.state.stories[el.dataset.story];
-          if (!s) return;
-          this.openModal(`
-            <div style="text-align:center;padding:26px 14px;border-radius:16px;background:linear-gradient(135deg,${s.color || "#6366f1"},#1e1b4b);color:#fff;">
-              <div style="font-size:13px;opacity:0.85;margin-bottom:12px;">✨ ${Security.escape(s.author)} • ${new Date(s.ts).toLocaleTimeString("uz-UZ", {hour:"2-digit",minute:"2-digit"})}</div>
-              <div style="font-size:20px;font-weight:700;line-height:1.45;">${Security.escape(s.text)}</div>
-            </div>
-          `);
-        };
+      document.getElementById("add-story-btn").onclick = () => this.openStoryModal();
+      strip.querySelectorAll("[data-sid]").forEach(el => el.onclick = () => {
+        const s = DB.state.stories[el.dataset.sid];
+        if (s) this.openModal(`<div style="text-align:center;padding:32px 16px;border-radius:16px;background:linear-gradient(135deg,${s.color||"#2aabee"},#1e1b4b);color:#fff;"><div style="font-size:13px;opacity:.85;margin-bottom:12px">✨ ${CryptoEngine.escape(s.author)}</div><div style="font-size:20px;font-weight:700">${CryptoEngine.escape(s.text)}</div></div>`);
       });
     },
 
-    renderRooms() {
-      const q = document.getElementById("room-search").value.trim().toLowerCase();
-      const list = document.getElementById("room-list");
-      const rooms = Object.values(RealtimeDB.state.rooms || {}).filter(r => r.name.toLowerCase().includes(q));
+    renderChatList() {
+      const q = document.getElementById("sb-search").value.trim().toLowerCase();
+      const rooms = Object.values(DB.state.rooms || {})
+        .filter(r => {
+          if (this.folder !== "all" && (r.type || "group") !== this.folder) return false;
+          return r.name.toLowerCase().includes(q);
+        })
+        .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
 
+      const list = document.getElementById("chat-list");
       list.innerHTML = rooms.map(r => {
-        const msgs = Object.values(RealtimeDB.state.messages[r.id] || {});
+        const msgs = Object.values(DB.state.messages[r.id] || {});
         const last = msgs[msgs.length - 1];
-        const preview = last ? (last.type === "poll" ? "📊 So'rovnoma" : last.type === "audio" ? "🎙️ Ovozli xabar" : last.image ? "🖼️ Rasm" : last.text) : r.desc;
+        const preview = last
+          ? (r.secret ? "🔒 Shifrlangan xabar" : last.type === "poll" ? "📊 So'rovnoma" : last.type === "audio" ? "🎙️ Ovozli xabar" : last.image ? "🖼️ Rasm" : last.file ? "📎 Fayl" : last.text)
+          : r.desc;
+        const time = last ? new Date(last.ts).toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" }) : "";
         return `
-          <div class="room-item ${r.id === this.activeRoom ? "active" : ""}" data-room="${r.id}">
-            <div class="room-icon">${r.icon || "💬"}</div>
-            <div class="room-meta">
-              <div class="room-name">${Security.escape(r.name)} ${r.secret ? "🔒" : ""}</div>
-              <div class="room-preview">${Security.escape(preview || "")}</div>
+          <div class="chat-item ${r.id === this.activeRoom ? "active" : ""}" data-rid="${r.id}">
+            <div class="avatar" style="background:${r.secret ? "#10b981" : CryptoEngine.colorFor(r.id)}">
+              ${r.icon || "💬"}
+              ${r.isBot || r.id === "umumiy" ? `<span class="online-dot"></span>` : ""}
+            </div>
+            <div class="chat-item-body">
+              <div class="chat-item-top">
+                <div class="chat-item-name ${r.secret ? "secret" : ""}">
+                  ${r.secret ? "🔒" : ""} ${CryptoEngine.escape(r.name)}
+                </div>
+                <span class="chat-item-time">${r.pinned ? "📌 " : ""}${time}</span>
+              </div>
+              <div class="chat-item-bottom">
+                <div class="chat-item-preview">${CryptoEngine.escape(preview || "")}</div>
+                ${msgs.length ? `<span class="badge">${msgs.length}</span>` : ""}
+              </div>
             </div>
           </div>
         `;
       }).join("");
 
-      list.querySelectorAll(".room-item").forEach(el => {
-        el.onclick = () => {
-          this.activeRoom = el.dataset.room;
-          document.getElementById("workspace").classList.add("mobile-chat-open");
-          this.renderRooms();
-          this.renderMessages();
-        };
-      });
+      list.querySelectorAll(".chat-item").forEach(el => el.onclick = () => this.selectRoom(el.dataset.rid));
     },
 
-    renderMessages() {
-      const room = RealtimeDB.state.rooms[this.activeRoom] || DEFAULT_ROOMS.umumiy;
-      document.getElementById("active-room-icon").textContent = room.icon || "💬";
-      document.getElementById("active-room-name").textContent = room.name;
-      document.getElementById("active-room-sub").textContent = room.desc || "";
+    selectRoom(id) {
+      this.activeRoom = id;
+      document.getElementById("layout").classList.add("mobile-open");
+      this.clearComposerState();
+      this.renderChatList();
+      this.renderMessages();
+    },
 
-      const msgs = Object.values(RealtimeDB.state.messages[this.activeRoom] || {}).sort((a, b) => a.ts - b.ts);
-      const wrap = document.getElementById("messages-wrap");
-      const me = TelegramAuth.currentUser;
-      const usersMap = RealtimeDB.state.users || {};
+    async renderMessages() {
+      const room = DB.state.rooms[this.activeRoom] || DEFAULT_ROOMS.umumiy;
+      document.getElementById("head-avatar").textContent = room.icon || "💬";
+      document.getElementById("head-avatar").style.background = room.secret ? "#10b981" : CryptoEngine.colorFor(room.id);
+      document.getElementById("head-title").innerHTML = `${room.secret ? "🔒 " : ""}${CryptoEngine.escape(room.name)}`;
+      document.getElementById("head-sub").textContent = room.secret
+        ? `AES-GCM shifrlangan • Taymer: ${room.ttl ? room.ttl + "s" : "O'chiq"}`
+        : (room.desc || "Online");
 
-      // Stats & Media
-      document.getElementById("stat-msgs").textContent = msgs.length;
-      document.getElementById("stat-users").textContent = Math.max(1, Object.keys(usersMap).length);
-      const images = msgs.filter(m => m.image).slice(-6);
-      const mediaGrid = document.getElementById("media-grid");
-      mediaGrid.innerHTML = images.length
-        ? images.map(m => `<img src="${m.image}" onclick="AppUI.viewImage('${m.image}')" />`).join("")
-        : `<div style="font-size:12px;color:var(--text-muted);grid-column:span 2;">Hozircha rasmlar yo'q</div>`;
+      document.getElementById("btn-secret-timer").classList.toggle("hidden", !room.secret);
 
-      // Pinned message
-      const pinned = [...msgs].reverse().find(m => m.pinned);
-      const pinBar = document.getElementById("pinned-bar");
-      if (pinned) {
-        document.getElementById("pinned-text").textContent = `${pinned.senderName}: ${pinned.text || "Media"}`;
-        pinBar.classList.remove("hidden");
-      } else {
-        pinBar.classList.add("hidden");
+      const rawMsgs = Object.values(DB.state.messages[this.activeRoom] || {}).sort((a,b) => a.ts - b.ts);
+      const msgs = [];
+      for (const m of rawMsgs) {
+        const plain = room.secret && m.text ? await CryptoEngine.decrypt(m.text, room.seed || room.id) : m.text;
+        if (this.inChatQuery && !(plain || "").toLowerCase().includes(this.inChatQuery)) continue;
+        msgs.push({ ...m, plainText: plain });
       }
 
-      wrap.innerHTML = msgs.map(m => {
-        const isMe = me && m.senderId === me.id;
-        const senderUser = usersMap[m.senderId] || {};
-        const time = new Date(m.ts).toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" });
-        const reactions = Object.entries(m.reactions || {}).filter(([, c]) => c > 0);
+      // Pinned bar
+      const pinned = [...msgs].reverse().find(m => m.pinned);
+      const pinStrip = document.getElementById("pin-strip");
+      if (pinned) {
+        document.getElementById("pin-strip-val").textContent = `${pinned.senderName}: ${pinned.plainText || "Media"}`;
+        pinStrip.classList.remove("hidden");
+        pinStrip.onclick = () => document.getElementById("msg-" + pinned.id)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      } else pinStrip.classList.add("hidden");
 
-        let bodyHtml = "";
-        if (m.reply) {
-          bodyHtml += `<div class="msg-reply-box"><strong>${Security.escape(m.reply.sender)}</strong>: ${Security.escape(m.reply.text)}</div>`;
-        }
+      const area = document.getElementById("messages-area");
+      const me = Auth.user;
+      const users = DB.state.users || {};
+
+      let html = room.secret ? `
+        <div class="secret-intro">
+          <strong>🔒 Maxfiy chat himoyalangan</strong><br/>
+          • Xabarlar AES-GCM orqali shifrlanadi<br/>
+          • Boshqa chatlarga yo'naltirish (Forward) taqiqlangan<br/>
+          • O'z-o'zini o'chirish taymeri: <strong>${room.ttl ? room.ttl + " soniya" : "O'chiq"}</strong>
+        </div>
+      ` : `<div class="date-chip">Bugun</div>`;
+
+      html += msgs.map(m => {
+        const isMe = me && m.senderId === me.id;
+        const u = users[m.senderId] || {};
+        const time = new Date(m.ts).toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" });
+        const reacts = Object.entries(m.reactions || {}).filter(([,c]) => c > 0);
+
+        let content = "";
+        if (m.forwardedFrom) content += `<div class="fwd-label">↪️ Yo'naltirilgan: ${CryptoEngine.escape(m.forwardedFrom)}</div>`;
+        if (m.reply) content += `<div class="reply-quote"><strong>${CryptoEngine.escape(m.reply.sender)}</strong><br/>${CryptoEngine.escape(m.reply.text)}</div>`;
         if (m.type === "poll" && m.poll) {
-          const totalVotes = m.poll.options.reduce((s, o) => s + (o.votes?.length || 0), 0);
-          bodyHtml += `
-            <div class="poll-box">
-              <div class="poll-q">📊 ${Security.escape(m.poll.question)}</div>
-              ${m.poll.options.map((o, idx) => {
-                const count = (o.votes || []).length;
-                const pct = totalVotes ? Math.round((count / totalVotes) * 100) : 0;
-                return `
-                  <button class="poll-opt" data-vote-msg="${m.id}" data-vote-idx="${idx}">
-                    <div class="poll-fill" style="width:${pct}%"></div>
-                    <span>${Security.escape(o.label)}</span>
-                    <span>${pct}% (${count})</span>
-                  </button>
-                `;
-              }).join("")}
-            </div>
-          `;
+          const total = m.poll.options.reduce((s,o) => s + (o.votes?.length || 0), 0);
+          content += `<div class="poll-card"><strong>📊 ${CryptoEngine.escape(m.poll.question)}</strong>${
+            m.poll.options.map((o,i) => {
+              const c = (o.votes || []).length, pct = total ? Math.round(c / total * 100) : 0;
+              return `<button class="poll-opt" data-vm="${m.id}" data-vi="${i}"><div class="poll-bar" style="width:${pct}%"></div><span>${CryptoEngine.escape(o.label)}</span><span>${pct}% (${c})</span></button>`;
+            }).join("")
+          }</div>`;
         } else {
-          if (m.text) bodyHtml += `<div class="msg-text">${Security.formatMarkdown(m.text)}</div>`;
-          if (m.image) bodyHtml += `<img class="msg-img" src="${m.image}" onclick="AppUI.viewImage('${m.image}')" />`;
-          if (m.audio) bodyHtml += `<audio class="msg-audio" controls src="${m.audio}"></audio>`;
+          if (m.plainText) content += `<div class="msg-text">${CryptoEngine.md(m.plainText)}</div>`;
+          if (m.image) content += `<img class="msg-img" src="${m.image}" onclick="UI.viewImg('${m.image}')" />`;
+          if (m.file) content += `<a class="msg-file" href="${m.file.data}" download="${CryptoEngine.escape(m.file.name)}"><span>📄</span><div><strong style="font-size:13px">${CryptoEngine.escape(m.file.name)}</strong><div style="font-size:11px;opacity:.7">${m.file.size}</div></div></a>`;
+          if (m.audio) content += `<audio class="msg-audio" controls src="${m.audio}"></audio>`;
         }
 
         return `
-          <div class="msg-row ${isMe ? "me" : ""}" id="msg-${m.id}">
-            <div class="avatar" style="background:${m.senderColor || "var(--accent)"};width:34px;height:34px;font-size:13px;">
-              ${Security.escape((m.senderName || "?")[0].toUpperCase())}
-            </div>
+          <div class="msg-row ${isMe ? "me" : ""}" id="msg-${m.id}" data-mid="${m.id}">
+            ${!isMe ? `<div class="avatar sm" style="background:${m.senderColor || "var(--accent)"}">${CryptoEngine.escape((m.senderName||"?")[0].toUpperCase())}</div>` : ""}
             <div class="msg-bubble">
-              <div class="msg-hover-bar">
-                <button data-react="${m.id}" data-em="👍">👍</button>
-                <button data-react="${m.id}" data-em="❤️">❤️</button>
-                <button data-react="${m.id}" data-em="🔥">🔥</button>
-                <button data-reply="${m.id}" title="Javob">↩️</button>
-                <button data-pin="${m.id}" title="Qadash">📌</button>
-                ${(isMe || AdminController.isUnlocked) ? `<button data-del="${m.id}" title="O'chirish">🗑️</button>` : ""}
+              <div class="msg-tools">
+                <button data-re="${m.id}" data-em="👍">👍</button>
+                <button data-re="${m.id}" data-em="❤️">❤️</button>
+                <button data-re="${m.id}" data-em="🔥">🔥</button>
+                <button data-ctx="${m.id}" title="Boshqa amallar">⋯</button>
               </div>
-              <div class="msg-sender">
-                ${Security.escape(m.senderName)}
-                ${senderUser.verified ? `<span class="verified-badge" title="Tasdiqlangan">✓</span>` : ""}
-              </div>
-              ${bodyHtml}
-              ${reactions.length ? `<div class="reactions-row">${reactions.map(([em, c]) => `<span class="react-chip">${em} ${c}</span>`).join("")}</div>` : ""}
-              <div class="msg-footer">
-                ${m.expiresAt ? `<span class="secret-timer">⏱️ ${Math.max(0, Math.ceil((m.expiresAt - Date.now()) / 1000))}s</span>` : ""}
+              ${!isMe ? `<div class="msg-sender">${CryptoEngine.escape(m.senderName)} ${u.verified ? `<span class="verified-icon">✓</span>` : ""}</div>` : ""}
+              ${content}
+              ${reacts.length ? `<div class="react-bar">${reacts.map(([em,c]) => `<span class="react-pill" data-re="${m.id}" data-em="${em}">${em} ${c}</span>`).join("")}</div>` : ""}
+              <div class="msg-meta">
+                ${m.edited ? `<span>tahrirlandi</span>` : ""}
+                ${m.expiresAt ? `<span class="ttl-chip">⏱️ ${Math.max(0, Math.ceil((m.expiresAt - Date.now())/1000))}s</span>` : ""}
                 <span>${time}</span>
+                ${isMe && Prefs.data.readReceipts ? `<span class="ticks">✓✓</span>` : ""}
               </div>
             </div>
           </div>
         `;
       }).join("");
 
-      wrap.scrollTop = wrap.scrollHeight;
+      area.innerHTML = html;
+      area.scrollTop = area.scrollHeight;
 
-      // Bind dynamic actions
-      wrap.querySelectorAll("[data-react]").forEach(btn => {
-        btn.onclick = () => {
-          const msg = RealtimeDB.state.messages[this.activeRoom]?.[btn.dataset.react];
-          if (!msg) return;
-          const next = { ...(msg.reactions || {}) };
-          next[btn.dataset.em] = (next[btn.dataset.em] || 0) + 1;
-          RealtimeDB.updateMessage(this.activeRoom, msg.id, { reactions: next });
-        };
-      });
-      wrap.querySelectorAll("[data-reply]").forEach(btn => {
-        btn.onclick = () => {
-          const msg = RealtimeDB.state.messages[this.activeRoom]?.[btn.dataset.reply];
-          if (!msg) return;
-          this.replyTo = { sender: msg.senderName, text: msg.text || "Media" };
-          document.getElementById("reply-banner-text").textContent = `↩️ ${msg.senderName}: ${this.replyTo.text.slice(0, 50)}`;
-          document.getElementById("reply-banner").classList.remove("hidden");
-          document.getElementById("msg-input").focus();
-        };
-      });
-      wrap.querySelectorAll("[data-pin]").forEach(btn => {
-        btn.onclick = () => {
-          const msg = RealtimeDB.state.messages[this.activeRoom]?.[btn.dataset.pin];
-          if (msg) RealtimeDB.updateMessage(this.activeRoom, msg.id, { pinned: !msg.pinned });
-        };
-      });
-      wrap.querySelectorAll("[data-del]").forEach(btn => {
-        btn.onclick = () => RealtimeDB.deleteMessage(this.activeRoom, btn.dataset.del);
-      });
-      wrap.querySelectorAll("[data-vote-msg]").forEach(btn => {
-        btn.onclick = () => this.votePoll(btn.dataset.voteMsg, Number(btn.dataset.voteIdx));
-      });
+      // Bind interactions
+      area.querySelectorAll("[data-re]").forEach(b => b.onclick = () => this.toggleReact(b.dataset.re, b.dataset.em));
+      area.querySelectorAll("[data-vm]").forEach(b => b.onclick = () => this.votePoll(b.dataset.vm, Number(b.dataset.vi)));
+      area.querySelectorAll("[data-ctx]").forEach(b => b.onclick = e => { e.stopPropagation(); this.openContextMenu(e, b.dataset.ctx); });
+      area.querySelectorAll(".msg-row").forEach(row => row.oncontextmenu = e => { e.preventDefault(); this.openContextMenu(e, row.dataset.mid); });
+
+      this.renderInfoDrawer(room, msgs);
     },
 
-    clearReply() {
-      this.replyTo = null;
-      document.getElementById("reply-banner").classList.add("hidden");
+    renderInfoDrawer(room, msgs) {
+      const imgs = msgs.filter(m => m.image).slice(-9);
+      const users = Object.values(DB.state.users || {});
+      let secretKeyHtml = "";
+      if (room.secret) {
+        const seed = room.seed || room.id;
+        const colors = ["#2aabee", "#10b981", "#6366f1", "#1e293b"];
+        let cells = "";
+        for (let i = 0; i < 16; i++) cells += `<div class="key-cell" style="background:${colors[(seed.charCodeAt(i % seed.length) + i) % 4]}"></div>`;
+        secretKeyHtml = `
+          <div class="info-section" style="text-align:center">
+            <h4>Shifrlash kaliti (AES-256)</h4>
+            <div class="key-grid">${cells}</div>
+            <div style="font-size:11.5px;color:var(--text-secondary)">Taymer: ${room.ttl ? room.ttl + " soniya" : "O'chiq"}</div>
+            <button class="btn-secondary" style="margin-top:8px;width:100%" onclick="UI.openSecretTimerModal()">⏱️ Taymerni o'zgartirish</button>
+          </div>
+        `;
+      }
+
+      document.getElementById("info-drawer-body").innerHTML = `
+        <div class="info-hero">
+          <div class="avatar" style="background:${room.secret ? "#10b981" : CryptoEngine.colorFor(room.id)}">${room.icon || "💬"}</div>
+          <div style="font-size:16px;font-weight:700">${CryptoEngine.escape(room.name)}</div>
+          <div style="font-size:12.5px;color:var(--text-secondary);margin-top:4px">${CryptoEngine.escape(room.desc || "")}</div>
+        </div>
+        ${secretKeyHtml}
+        <div class="info-section">
+          <h4>Umumiy media (${imgs.length})</h4>
+          <div class="media-grid">
+            ${imgs.length ? imgs.map(m => `<img src="${m.image}" onclick="UI.viewImg('${m.image}')" />`).join("") : `<span style="font-size:12px;color:var(--text-muted);grid-column:span 3">Rasmlar yo'q</span>`}
+          </div>
+        </div>
+        <div class="info-section">
+          <h4>Ishtirokchilar (${Math.max(1, users.length)})</h4>
+          ${users.slice(0, 8).map(u => `
+            <div style="display:flex;align-items:center;gap:9px;margin-bottom:8px;">
+              <div class="avatar sm" style="background:${u.color};width:30px;height:30px;font-size:12px">${CryptoEngine.escape(u.name[0].toUpperCase())}</div>
+              <div style="min-width:0"><div style="font-size:13px;font-weight:600">${CryptoEngine.escape(u.name)} ${u.verified ? "☑️" : ""}</div><div style="font-size:11px;color:var(--text-secondary)">${CryptoEngine.escape(u.username)}</div></div>
+            </div>
+          `).join("")}
+        </div>
+      `;
     },
 
-    viewImage(src) {
-      document.getElementById("lightbox-img").src = src;
-      document.getElementById("lightbox").classList.remove("hidden");
+    async openContextMenu(e, msgId) {
+      const room = DB.state.rooms[this.activeRoom] || DEFAULT_ROOMS.umumiy;
+      const m = DB.state.messages[this.activeRoom]?.[msgId];
+      if (!m) return;
+      const plain = room.secret && m.text ? await CryptoEngine.decrypt(m.text, room.seed || room.id) : (m.text || "");
+      const isMe = Auth.user && m.senderId === Auth.user.id;
+      const menu = document.getElementById("ctx-menu");
+
+      menu.innerHTML = `
+        <button id="cx-reply">↩️ Javob berish</button>
+        ${!room.secret ? `<button id="cx-fwd">↪️ Yo'naltirish (Forward)</button>` : ""}
+        ${isMe && plain ? `<button id="cx-edit">✏️ Tahrirlash</button>` : ""}
+        ${plain ? `<button id="cx-copy">📋 Nusxalash</button>` : ""}
+        <button id="cx-pin">📌 ${m.pinned ? "Qadashni yechish" : "Qadash"}</button>
+        ${(isMe || Admin.unlocked) ? `<button id="cx-del" style="color:var(--rose)">🗑️ O'chirish</button>` : ""}
+      `;
+
+      menu.style.left = Math.min(e.clientX, window.innerWidth - 200) + "px";
+      menu.style.top = Math.min(e.clientY, window.innerHeight - 240) + "px";
+      menu.classList.remove("hidden");
+
+      document.getElementById("cx-reply").onclick = () => {
+        this.replyTo = { sender: m.senderName, text: plain || "Media" };
+        this.editMsgId = null;
+        this.showComposerBanner(`↩️ Javob: ${m.senderName} — ${(plain || "Media").slice(0, 45)}`);
+      };
+      if (document.getElementById("cx-fwd")) {
+        document.getElementById("cx-fwd").onclick = () => this.openForwardModal(m, plain);
+      }
+      if (document.getElementById("cx-edit")) {
+        document.getElementById("cx-edit").onclick = () => {
+          this.editMsgId = msgId; this.replyTo = null;
+          document.getElementById("msg-input").value = plain;
+          this.showComposerBanner("✏️ Xabarni tahrirlash");
+        };
+      }
+      if (document.getElementById("cx-copy")) {
+        document.getElementById("cx-copy").onclick = () => { navigator.clipboard.writeText(plain); toast("Nusxalandi!", "info"); };
+      }
+      document.getElementById("cx-pin").onclick = () => DB.patchMsg(this.activeRoom, msgId, { pinned: !m.pinned });
+      if (document.getElementById("cx-del")) {
+        document.getElementById("cx-del").onclick = () => DB.delMsg(this.activeRoom, msgId);
+      }
+    },
+
+    showComposerBanner(text) {
+      document.getElementById("composer-banner-text").textContent = text;
+      document.getElementById("composer-banner").classList.remove("hidden");
+      document.getElementById("msg-input").focus();
+    },
+    clearComposerState() {
+      this.replyTo = null; this.editMsgId = null;
+      document.getElementById("composer-banner").classList.add("hidden");
     },
 
     checkBanned() {
-      const me = TelegramAuth.currentUser;
-      const live = me && RealtimeDB.state.users?.[me.id];
-      if (live?.banned) {
-        toast("Sizning hisobingiz administrator tomonidan cheklangan!", "error");
-        return true;
-      }
+      const live = Auth.user && DB.state.users?.[Auth.user.id];
+      if (live?.banned) { toast("Hisobingiz admin tomonidan cheklangan!", "error"); return true; }
       return false;
     },
 
-    async sendTextMessage() {
-      const input = document.getElementById("msg-input");
-      const text = input.value.trim();
-      if (!text) return;
-
-      // Hidden admin command
-      if (text === "/admin") {
-        input.value = "";
-        AdminController.openGate();
-        return;
-      }
+    async sendMessage() {
+      const inp = document.getElementById("msg-input");
+      const raw = inp.value.trim();
+      if (!raw) return;
+      if (raw === "/admin") { inp.value = ""; Admin.openGate(); return; }
       if (this.checkBanned()) return;
 
-      const user = TelegramAuth.currentUser;
-      const room = RealtimeDB.state.rooms[this.activeRoom] || DEFAULT_ROOMS.umumiy;
-      input.value = "";
+      const room = DB.state.rooms[this.activeRoom] || DEFAULT_ROOMS.umumiy;
+      const storedText = room.secret ? await CryptoEngine.encrypt(raw, room.seed || room.id) : raw;
+      inp.value = "";
 
-      const payload = {
-        senderId: user.id,
-        senderName: user.name,
-        senderColor: user.color,
-        text,
-        reply: this.replyTo,
-        ts: Date.now(),
-        expiresAt: room.secret ? Date.now() + (room.ttl || 30) * 1000 : null
-      };
-      this.clearReply();
-      await RealtimeDB.pushMessage(this.activeRoom, payload);
-      SoundFX.play(720, 0.06);
-
-      // Helper bot auto-reply
-      if (room.isBot || text.startsWith("/")) {
-        this.handleBotReply(text);
+      if (this.editMsgId) {
+        await DB.patchMsg(this.activeRoom, this.editMsgId, { text: storedText, edited: true });
+        this.clearComposerState();
+        return;
       }
+
+      const u = Auth.user;
+      await DB.pushMsg(this.activeRoom, {
+        senderId: u.id, senderName: u.name, senderColor: u.color,
+        text: storedText, reply: this.replyTo, ts: Date.now(),
+        expiresAt: room.secret && room.ttl ? Date.now() + room.ttl * 1000 : null
+      });
+      this.clearComposerState();
+      Prefs.beep(760);
+
+      if (room.isBot || raw.startsWith("/")) this.botReply(raw);
     },
 
-    handleBotReply(text) {
-      let reply = "";
-      if (text === "/vaqt") reply = `🕒 Hozirgi vaqt: **${new Date().toLocaleString("uz-UZ")}**`;
-      else if (text === "/yordam") reply = "Mavjud buyruqlar: `/vaqt`, `/yordam`. Yuqoridagi 📊 tugmasi orqali so'rovnoma yaratishingiz mumkin!";
-      else if (this.activeRoom === "bot") reply = `Xabaringiz qabul qilindi: *"${text}"*. Yordam uchun \`/yordam\` yozing.`;
-      if (!reply) return;
+    botReply(text) {
+      let ans = "";
+      if (text === "/vaqt") ans = `🕒 Hozirgi vaqt: **${new Date().toLocaleString("uz-UZ")}**`;
+      else if (text === "/yordam") ans = "Buyruqlar: `/vaqt`, `/yordam`. Sozlamalar uchun chap yuqoridagi ☰ menyuni oching.";
+      else if (this.activeRoom === "bot") ans = `Qabul qilindi: *"${text}"*. Yordam uchun \`/yordam\` yozing.`;
+      if (!ans) return;
+      setTimeout(() => DB.pushMsg(this.activeRoom, {
+        senderId: "bot", senderName: "Suhbat Yordamchi", senderColor: "#2aabee", text: ans, ts: Date.now()
+      }), 400);
+    },
 
-      setTimeout(() => {
-        RealtimeDB.pushMessage(this.activeRoom, {
-          senderId: "bot_sys", senderName: "Yordamchi Bot", senderColor: "#10b981",
-          text: reply, ts: Date.now()
+    toggleReact(msgId, em) {
+      const m = DB.state.messages[this.activeRoom]?.[msgId];
+      if (!m) return;
+      const next = { ...(m.reactions || {}) };
+      next[em] = (next[em] || 0) + 1;
+      DB.patchMsg(this.activeRoom, msgId, { reactions: next });
+    },
+
+    openForwardModal(m, plain) {
+      const rooms = Object.values(DB.state.rooms || {}).filter(r => !r.secret);
+      this.openModal(`
+        <div class="modal-head"><h2>↪️ Xabarni yo'naltirish</h2><button class="icon-btn" onclick="UI.closeModal()">✕</button></div>
+        ${rooms.map(r => `<button class="row-card" style="width:100%" data-fw="${r.id}"><span>${r.icon || "💬"} ${CryptoEngine.escape(r.name)}</span><span>➤</span></button>`).join("")}
+      `);
+      document.querySelectorAll("[data-fw]").forEach(b => b.onclick = async () => {
+        const u = Auth.user;
+        await DB.pushMsg(b.dataset.fw, {
+          senderId: u.id, senderName: u.name, senderColor: u.color,
+          text: plain, image: m.image || null, forwardedFrom: m.senderName, ts: Date.now()
         });
-      }, 450);
+        this.closeModal(); toast("Xabar yo'naltirildi!", "success");
+      });
     },
 
-    handleImageUpload(file) {
+    uploadImage(file) {
       if (!file || this.checkBanned()) return;
-      const reader = new FileReader();
-      reader.onload = e => {
+      const r = new FileReader();
+      r.onload = e => {
         const img = new Image();
         img.onload = () => {
-          const canvas = document.createElement("canvas");
-          const max = 720;
-          const scale = Math.min(1, max / Math.max(img.width, img.height));
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
-          canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
-          const compressed = canvas.toDataURL("image/jpeg", 0.72);
-          const user = TelegramAuth.currentUser;
-          RealtimeDB.pushMessage(this.activeRoom, {
-            senderId: user.id, senderName: user.name, senderColor: user.color,
-            image: compressed, ts: Date.now()
+          const c = document.createElement("canvas"), max = 760, sc = Math.min(1, max / Math.max(img.width, img.height));
+          c.width = img.width * sc; c.height = img.height * sc;
+          c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+          const u = Auth.user, room = DB.state.rooms[this.activeRoom] || {};
+          DB.pushMsg(this.activeRoom, {
+            senderId: u.id, senderName: u.name, senderColor: u.color,
+            image: c.toDataURL("image/jpeg", 0.75), ts: Date.now(),
+            expiresAt: room.secret && room.ttl ? Date.now() + room.ttl * 1000 : null
           });
         };
         img.src = e.target.result;
       };
-      reader.readAsDataURL(file);
+      r.readAsDataURL(file);
     },
 
-    async toggleVoiceRecord() {
+    uploadFile(file) {
+      if (!file || this.checkBanned()) return;
+      if (file.size > 2 * 1024 * 1024) { toast("Fayl hajmi 2MB dan oshmasligi kerak!", "error"); return; }
+      const r = new FileReader();
+      r.onload = () => {
+        const u = Auth.user;
+        DB.pushMsg(this.activeRoom, {
+          senderId: u.id, senderName: u.name, senderColor: u.color,
+          file: { name: file.name, size: (file.size / 1024).toFixed(1) + " KB", data: r.result },
+          ts: Date.now()
+        });
+      };
+      r.readAsDataURL(file);
+    },
+
+    async toggleVoice() {
       if (this.checkBanned()) return;
       const btn = document.getElementById("btn-voice");
-      if (!this.isRecording) {
+      if (!this.isRec) {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          this.mediaRecorder = new MediaRecorder(stream);
-          this.audioChunks = [];
-          this.mediaRecorder.ondataavailable = e => this.audioChunks.push(e.data);
-          this.mediaRecorder.onstop = () => {
-            const blob = new Blob(this.audioChunks, { type: "audio/webm" });
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              const user = TelegramAuth.currentUser;
-              RealtimeDB.pushMessage(this.activeRoom, {
-                senderId: user.id, senderName: user.name, senderColor: user.color,
-                type: "audio", audio: reader.result, ts: Date.now()
-              });
+          this.recorder = new MediaRecorder(stream); this.chunks = [];
+          this.recorder.ondataavailable = e => this.chunks.push(e.data);
+          this.recorder.onstop = () => {
+            const rd = new FileReader();
+            rd.onloadend = () => {
+              const u = Auth.user;
+              DB.pushMsg(this.activeRoom, { senderId: u.id, senderName: u.name, senderColor: u.color, type: "audio", audio: rd.result, ts: Date.now() });
             };
-            reader.readAsDataURL(blob);
+            rd.readAsDataURL(new Blob(this.chunks, { type: "audio/webm" }));
             stream.getTracks().forEach(t => t.stop());
           };
-          this.mediaRecorder.start();
-          this.isRecording = true;
-          btn.classList.add("rec-active");
-          toast("Ovoz yozilmoqda... To'xtatish uchun yana bosing.", "info");
-        } catch {
-          toast("Mikrofonga ruxsat berilmadi.", "error");
-        }
+          this.recorder.start(); this.isRec = true; btn.classList.add("rec-on");
+          toast("Ovoz yozilmoqda... Yuborish uchun yana bosing.", "info");
+        } catch { toast("Mikrofonga ruxsat berilmadi.", "error"); }
       } else {
-        this.mediaRecorder.stop();
-        this.isRecording = false;
-        btn.classList.remove("rec-active");
+        this.recorder.stop(); this.isRec = false; btn.classList.remove("rec-on");
       }
     },
 
-    openPollModal() {
-      if (this.checkBanned()) return;
+    openNewRoomModal(defaultType = "group") {
       this.openModal(`
-        <div class="modal-header">
-          <h2>📊 Yangi so'rovnoma</h2>
-          <button class="icon-btn" onclick="AppUI.closeModal()">✕</button>
+        <div class="modal-head"><h2>${defaultType === "secret" ? "🔒 Yangi maxfiy chat" : "👥 Yangi guruh / suhbat"}</h2><button class="icon-btn" onclick="UI.closeModal()">✕</button></div>
+        <div class="field"><label>Chat nomi</label><input id="nr-name" class="input" placeholder="Masalan: Maxfiy loyiha" /></div>
+        <div class="field"><label>Turi</label>
+          <select id="nr-type" class="input">
+            <option value="group" ${defaultType==="group"?"selected":""}>Guruh</option>
+            <option value="personal" ${defaultType==="personal"?"selected":""}>Shaxsiy</option>
+            <option value="secret" ${defaultType==="secret"?"selected":""}>Maxfiy chat (AES-GCM shifrlangan)</option>
+          </select>
         </div>
-        <div class="field"><label>Savol</label><input id="poll-q" class="input" placeholder="Masalan: Qaysi freymvork yaxshi?" /></div>
-        <div class="field"><label>Variantlar (har birini yangi qatordan)</label><textarea id="poll-opts" class="input" rows="4" placeholder="React\nVue\nVanilla JS"></textarea></div>
-        <button class="btn-primary" id="btn-create-poll">Yuborish</button>
+        <div class="field"><label>O'z-o'zini o'chirish taymeri (faqat maxfiy chatda)</label>
+          <select id="nr-ttl" class="input">
+            <option value="0">O'chiq</option>
+            <option value="10">10 soniya</option>
+            <option value="30" selected>30 soniya</option>
+            <option value="60">1 daqiqa</option>
+            <option value="300">5 daqiqa</option>
+          </select>
+        </div>
+        <button class="btn-primary" id="nr-go">Yaratish</button>
       `);
-      document.getElementById("btn-create-poll").onclick = async () => {
-        const q = document.getElementById("poll-q").value.trim();
-        const opts = document.getElementById("poll-opts").value.split("\n").map(s => s.trim()).filter(Boolean);
-        if (!q || opts.length < 2) { toast("Savol va kamida 2 ta variant kiriting!", "error"); return; }
-        const user = TelegramAuth.currentUser;
-        await RealtimeDB.pushMessage(this.activeRoom, {
-          senderId: user.id, senderName: user.name, senderColor: user.color,
-          type: "poll", ts: Date.now(),
+      document.getElementById("nr-go").onclick = async () => {
+        const name = document.getElementById("nr-name").value.trim();
+        if (!name) return;
+        const type = document.getElementById("nr-type").value;
+        const isSecret = type === "secret";
+        const id = (isSecret ? "sec_" : "rm_") + Date.now();
+        await DB.saveRoom({
+          id, name, type, secret: isSecret,
+          icon: isSecret ? "🔒" : type === "personal" ? "👤" : "👥",
+          ttl: isSecret ? Number(document.getElementById("nr-ttl").value) : 0,
+          seed: isSecret ? Math.random().toString(36).slice(2) : "",
+          desc: isSecret ? "AES-GCM E2E shifrlangan maxfiy chat" : "Yangi suhbat"
+        });
+        this.closeModal();
+        this.selectRoom(id);
+      };
+    },
+
+    openSecretTimerModal() {
+      const room = DB.state.rooms[this.activeRoom];
+      if (!room?.secret) return;
+      this.openModal(`
+        <div class="modal-head"><h2>⏱️ O'z-o'zini o'chirish taymeri</h2><button class="icon-btn" onclick="UI.closeModal()">✕</button></div>
+        ${[0, 10, 30, 60, 300].map(s => `
+          <button class="row-card" style="width:100%" data-ttl="${s}">
+            <span>${s === 0 ? "O'chiq" : s < 60 ? s + " soniya" : (s/60) + " daqiqa"}</span>
+            <span>${room.ttl === s ? "✅" : ""}</span>
+          </button>
+        `).join("")}
+      `);
+      document.querySelectorAll("[data-ttl]").forEach(b => b.onclick = async () => {
+        await DB.saveRoom({ ...room, ttl: Number(b.dataset.ttl) });
+        this.closeModal(); toast("Taymer yangilandi!", "success");
+      });
+    },
+
+    openPollModal() {
+      this.openModal(`
+        <div class="modal-head"><h2>📊 Yangi so'rovnoma</h2><button class="icon-btn" onclick="UI.closeModal()">✕</button></div>
+        <div class="field"><label>Savol</label><input id="pq" class="input" placeholder="Savolingiz..." /></div>
+        <div class="field"><label>Variantlar (har birini yangi qatordan)</label><textarea id="po" class="input" rows="4" placeholder="Variant 1\nVariant 2"></textarea></div>
+        <button class="btn-primary" id="p-go">Yaratish</button>
+      `);
+      document.getElementById("p-go").onclick = async () => {
+        const q = document.getElementById("pq").value.trim();
+        const opts = document.getElementById("po").value.split("\n").map(s => s.trim()).filter(Boolean);
+        if (!q || opts.length < 2) { toast("Savol va kamida 2 ta variant yozing!", "error"); return; }
+        const u = Auth.user;
+        await DB.pushMsg(this.activeRoom, {
+          senderId: u.id, senderName: u.name, senderColor: u.color, type: "poll", ts: Date.now(),
           poll: { question: q, options: opts.map(label => ({ label, votes: [] })) }
         });
         this.closeModal();
       };
     },
 
-    async votePoll(msgId, optIdx) {
-      const me = TelegramAuth.currentUser;
-      const msg = RealtimeDB.state.messages[this.activeRoom]?.[msgId];
-      if (!me || !msg?.poll) return;
-      const options = msg.poll.options.map((o, i) => {
-        const votes = (o.votes || []).filter(id => id !== me.id);
-        if (i === optIdx) votes.push(me.id);
+    async votePoll(msgId, idx) {
+      const m = DB.state.messages[this.activeRoom]?.[msgId];
+      if (!m?.poll || !Auth.user) return;
+      const options = m.poll.options.map((o, i) => {
+        const votes = (o.votes || []).filter(id => id !== Auth.user.id);
+        if (i === idx) votes.push(Auth.user.id);
         return { ...o, votes };
       });
-      await RealtimeDB.updateMessage(this.activeRoom, msgId, { poll: { ...msg.poll, options } });
+      await DB.patchMsg(this.activeRoom, msgId, { poll: { ...m.poll, options } });
     },
 
     openStoryModal() {
-      if (this.checkBanned()) return;
       this.openModal(`
-        <div class="modal-header">
-          <h2>✨ 24 soatlik Status qo'shish</h2>
-          <button class="icon-btn" onclick="AppUI.closeModal()">✕</button>
-        </div>
-        <div class="field"><label>Status matni</label><textarea id="story-text" class="input" rows="3" maxlength="140" placeholder="Bugun nimalar qilyapsiz?"></textarea></div>
-        <button class="btn-primary" id="btn-post-story">Joylashtirish</button>
+        <div class="modal-head"><h2>✨ Status qo'shish (24 soat)</h2><button class="icon-btn" onclick="UI.closeModal()">✕</button></div>
+        <div class="field"><textarea id="st-txt" class="input" rows="3" maxlength="140" placeholder="Fikringizni yozing..."></textarea></div>
+        <button class="btn-primary" id="st-go">Joylashtirish</button>
       `);
-      document.getElementById("btn-post-story").onclick = async () => {
-        const text = document.getElementById("story-text").value.trim();
+      document.getElementById("st-go").onclick = async () => {
+        const text = document.getElementById("st-txt").value.trim();
         if (!text) return;
-        const user = TelegramAuth.currentUser;
-        await RealtimeDB.addStory({ author: user.name, color: user.color, text, ts: Date.now() });
-        this.closeModal();
-        toast("Status joylandi!", "success");
+        await DB.addStory({ author: Auth.user.name, color: Auth.user.color, text, ts: Date.now() });
+        this.closeModal(); toast("Status joylandi!", "success");
       };
     },
 
-    openNewRoomModal() {
+    /* =========================================================
+       9. TO'LIQ SOZLAMALAR (TELEGRAM SETTINGS)
+       ========================================================= */
+    openSettings(tab = "profile") {
+      const u = Auth.user || {};
+      const p = Prefs.data;
+      let content = "";
+
+      if (tab === "profile") {
+        content = `
+          <div class="field"><label>Ism</label><input id="s-name" class="input" value="${CryptoEngine.escape(u.name || "")}" /></div>
+          <div class="field"><label>Username</label><input id="s-user" class="input" value="${CryptoEngine.escape(u.username || "")}" /></div>
+          <div class="field"><label>Bio (O'zingiz haqingizda)</label><input id="s-bio" class="input" value="${CryptoEngine.escape(u.bio || "")}" /></div>
+          <button class="btn-primary" id="s-save-prof">Saqlash</button>
+        `;
+      } else if (tab === "appearance") {
+        const accents = ["#2aabee", "#6366f1", "#10b981", "#ec4899", "#f59e0b"];
+        content = `
+          <div class="field"><label>Mavzu (Theme)</label>
+            <select id="s-theme" class="input">
+              <option value="telegram-dark" ${p.theme==="telegram-dark"?"selected":""}>Telegram Night</option>
+              <option value="obsidian" ${p.theme==="obsidian"?"selected":""}>Obsidian Dark</option>
+              <option value="light" ${p.theme==="light"?"selected":""}>Kunduzgi (Light)</option>
+            </select>
+          </div>
+          <div class="field"><label>Asosiy rang (Accent)</label>
+            <div class="swatch-row">${accents.map(c => `<div class="swatch ${p.accent===c?"active":""}" data-acc="${c}" style="background:${c}"></div>`).join("")}</div>
+          </div>
+          <div class="field"><label>Chat foni (Wallpaper)</label>
+            <select id="s-wp" class="input">
+              <option value="wp-pattern" ${p.wallpaper==="wp-pattern"?"selected":""}>Telegram Naqshli</option>
+              <option value="wp-aurora" ${p.wallpaper==="wp-aurora"?"selected":""}>Aurora Gradient</option>
+              <option value="wp-clean" ${p.wallpaper==="wp-clean"?"selected":""}>Oddiy tekis</option>
+            </select>
+          </div>
+          <div class="field"><label>Matn o'lchami: <strong id="fs-val">${p.fontSize}px</strong></label>
+            <input id="s-fs" type="range" min="12" max="18" step="0.5" value="${p.fontSize}" style="width:100%" />
+          </div>
+        `;
+      } else if (tab === "privacy") {
+        content = `
+          <div class="row-card">
+            <div><strong>🔐 Ilova qulfi (PIN kod)</strong><div style="font-size:12px;color:var(--text-secondary)">${p.passcode ? "Yoqilgan (4 xonali PIN)" : "O'chirilgan"}</div></div>
+            <button class="btn-secondary" id="s-pin-btn">${p.passcode ? "O'chirish" : "O'rnatish"}</button>
+          </div>
+          <div class="row-card">
+            <div><strong>✓✓ O'qilganlik belgisi</strong><div style="font-size:12px;color:var(--text-secondary)">Xabar o'qilganini ko'rsatish</div></div>
+            <button class="btn-secondary" id="s-rr-btn">${p.readReceipts ? "Yoqiq" : "O'chiq"}</button>
+          </div>
+          <div class="row-card">
+            <div><strong>🔊 Ovozli bildirishnomalar</strong></div>
+            <button class="btn-secondary" id="s-snd-btn">${p.sound ? "Yoqiq" : "O'chiq"}</button>
+          </div>
+        `;
+      } else if (tab === "data") {
+        content = `
+          <div class="row-card">
+            <div><strong>📥 Chat tarixini eksport qilish</strong><div style="font-size:12px;color:var(--text-secondary)">Barcha xabarlarni JSON fayl qilib yuklab olish</div></div>
+            <button class="btn-secondary" id="s-exp">Yuklab olish</button>
+          </div>
+          <div class="row-card">
+            <div><strong>🚪 Hisobdan chiqish</strong><div style="font-size:12px;color:var(--text-secondary)">Joriy sessiyani yakunlash</div></div>
+            <button class="btn-secondary btn-danger" id="s-logout">Chiqish</button>
+          </div>
+        `;
+      }
+
       this.openModal(`
-        <div class="modal-header">
-          <h2>➕ Yangi chat xonasi</h2>
-          <button class="icon-btn" onclick="AppUI.closeModal()">✕</button>
+        <div class="modal-head"><h2>⚙️ Sozlamalar</h2><button class="icon-btn" onclick="UI.closeModal()">✕</button></div>
+        <div class="tabs">
+          <button class="tab ${tab==="profile"?"active":""}" data-st="profile">Profil</button>
+          <button class="tab ${tab==="appearance"?"active":""}" data-st="appearance">Ko'rinish</button>
+          <button class="tab ${tab==="privacy"?"active":""}" data-st="privacy">Maxfiylik</button>
+          <button class="tab ${tab==="data"?"active":""}" data-st="data">Ma'lumotlar</button>
         </div>
-        <div class="field"><label>Xona nomi</label><input id="nr-name" class="input" placeholder="Masalan: Dizaynerlar" /></div>
-        <div class="field"><label>Emoji belgi</label><input id="nr-icon" class="input" value="🚀" maxlength="4" /></div>
-        <div class="field"><label>Tavsif</label><input id="nr-desc" class="input" placeholder="Xona haqida qisqacha..." /></div>
-        <button class="btn-primary" id="btn-save-room">Yaratish</button>
+        ${content}
       `);
-      document.getElementById("btn-save-room").onclick = async () => {
-        const name = document.getElementById("nr-name").value.trim();
-        if (!name) return;
-        const id = "room_" + Date.now();
-        await RealtimeDB.createRoom({
-          id, name,
-          icon: document.getElementById("nr-icon").value.trim() || "💬",
-          desc: document.getElementById("nr-desc").value.trim() || "Yangi suhbat xonasi",
-          secret: false
-        });
-        this.activeRoom = id;
-        this.closeModal();
-      };
+
+      document.querySelectorAll("[data-st]").forEach(b => b.onclick = () => this.openSettings(b.dataset.st));
+
+      if (tab === "profile") {
+        document.getElementById("s-save-prof").onclick = async () => {
+          u.name = document.getElementById("s-name").value.trim() || u.name;
+          u.username = "@" + document.getElementById("s-user").value.trim().replace(/^@+/, "");
+          u.bio = document.getElementById("s-bio").value.trim();
+          localStorage.setItem("suhbat_user", JSON.stringify(u));
+          await DB.saveUser(u);
+          toast("Profil saqlandi!", "success");
+        };
+      } else if (tab === "appearance") {
+        document.getElementById("s-theme").onchange = e => Prefs.save({ theme: e.target.value });
+        document.getElementById("s-wp").onchange = e => Prefs.save({ wallpaper: e.target.value });
+        document.getElementById("s-fs").oninput = e => { document.getElementById("fs-val").textContent = e.target.value + "px"; Prefs.save({ fontSize: Number(e.target.value) }); };
+        document.querySelectorAll("[data-acc]").forEach(sw => sw.onclick = () => { Prefs.save({ accent: sw.dataset.acc }); this.openSettings("appearance"); });
+      } else if (tab === "privacy") {
+        document.getElementById("s-pin-btn").onclick = () => {
+          if (p.passcode) { Prefs.save({ passcode: "" }); toast("Ilova qulfi o'chirildi", "info"); this.openSettings("privacy"); }
+          else {
+            const pin = prompt("Yangi 4 xonali PIN kod kiriting (masalan: 1234):");
+            if (pin && /^\d{4}$/.test(pin)) { Prefs.save({ passcode: pin }); toast("PIN kod o'rnatildi!", "success"); this.openSettings("privacy"); }
+            else toast("Faqat 4 ta raqam kiriting!", "error");
+          }
+        };
+        document.getElementById("s-rr-btn").onclick = () => { Prefs.save({ readReceipts: !p.readReceipts }); this.openSettings("privacy"); };
+        document.getElementById("s-snd-btn").onclick = () => { Prefs.save({ sound: !p.sound }); this.openSettings("privacy"); };
+      } else if (tab === "data") {
+        document.getElementById("s-exp").onclick = () => {
+          const blob = new Blob([JSON.stringify(DB.state.messages, null, 2)], { type: "application/json" });
+          const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "suhbat-history.json"; a.click();
+        };
+        document.getElementById("s-logout").onclick = () => { localStorage.removeItem("suhbat_user"); location.reload(); };
+      }
     },
 
-    openProfileModal() {
-      const user = TelegramAuth.currentUser;
-      if (!user) return;
-      this.openModal(`
-        <div class="modal-header">
-          <h2>👤 Profil sozlamalari</h2>
-          <button class="icon-btn" onclick="AppUI.closeModal()">✕</button>
-        </div>
-        <div class="field"><label>Ism</label><input id="pr-name" class="input" value="${Security.escape(user.name)}" /></div>
-        <div class="field"><label>Telegram ID</label><input class="input" value="${Security.escape(user.tgId)}" disabled /></div>
-        <div style="display:flex;gap:10px;">
-          <button class="btn-primary" id="btn-save-profile">Saqlash</button>
-          <button class="btn-secondary btn-danger" id="btn-logout">Chiqish</button>
-        </div>
-      `);
-      document.getElementById("btn-save-profile").onclick = async () => {
-        const name = document.getElementById("pr-name").value.trim();
-        if (!name) return;
-        user.name = name;
-        localStorage.setItem("suhbat_user", JSON.stringify(user));
-        await RealtimeDB.saveUser(user);
-        this.closeModal();
-        toast("Profil yangilandi!", "success");
-      };
-      document.getElementById("btn-logout").onclick = () => {
-        localStorage.removeItem("suhbat_user");
-        location.reload();
-      };
+    viewImg(src) {
+      document.getElementById("lightbox-img").src = src;
+      document.getElementById("lightbox").classList.remove("hidden");
     },
 
-    cleanExpiredMessages() {
-      const msgs = RealtimeDB.state.messages[this.activeRoom] || {};
+    cleanExpired() {
+      const msgs = DB.state.messages[this.activeRoom] || {};
       const now = Date.now();
-      Object.values(msgs).forEach(m => {
-        if (m.expiresAt && now >= m.expiresAt) {
-          RealtimeDB.deleteMessage(this.activeRoom, m.id);
-        }
-      });
+      Object.values(msgs).forEach(m => { if (m.expiresAt && now >= m.expiresAt) DB.delMsg(this.activeRoom, m.id); });
     }
   };
 
-  window.AppUI = AppUI;
-  window.AdminController = AdminController;
+  window.UI = UI;
+  window.Admin = Admin;
 
-  // Boot
-  RealtimeDB.subscribe(() => AppUI.renderAll());
-  AppUI.init();
-  TelegramAuth.init();
+  Prefs.load();
+  DB.subscribe(() => UI.renderAll());
+  UI.init();
+  Auth.init();
   PWA.init();
-  AdminController.init();
-  RealtimeDB.init();
+  Admin.init();
+  DB.init();
 </script>
 </body>
 </html>
